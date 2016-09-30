@@ -59,12 +59,13 @@ handles.output = hObject;
 % save parameter_setting file
 addpath('[functions]');
 rootfolder = pwd;
-p=p_setting();
-savefolder = [rootfolder '/[functions]/p.mat'];
+[p,io]=p_setting();
+savefolder = [rootfolder '/[functions]/'];
 if ispc ==1
     savefolder(findstr(savefolder, '/'))='\';
 end
-save(savefolder,'p');
+now_image = 0;
+save([savefolder 'io.mat'],'io','now_image','p');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -74,7 +75,7 @@ guidata(hObject, handles);
 end
 
 
-% --- Outputs from this function are returned to the command line.
+% --- SEG3D Outputs
 function varargout = SEG3D_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
@@ -85,22 +86,25 @@ function varargout = SEG3D_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 end
 
-
+% --- pushbutton3: Open image file
 function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 rootfolder = pwd;
-p=p_setting();
-savefolder = [rootfolder '/[functions]/p.mat'];
+clc
+[p,io]=p_setting();
+savefolder = [rootfolder '/[functions]/io.mat'];
 if ispc ==1
     savefolder(findstr(savefolder, '/'))='\';
 end
-save(savefolder,'p');
+now_image = 0;
+save(savefolder,'io','now_image');
 
 
-load_tif_lsm(hObject,handles,p);
+load_tif_lsm(hObject,handles,p,io);
 
+set(handles.pushbutton2,'enable','on');
 set(handles.pushbutton12,'enable','on');
 set(handles.pushbutton13,'enable','on');
 set(handles.pushbutton14,'enable','on');
@@ -109,7 +113,59 @@ set(handles.pushbutton4,'enable','on');
 guidata(hObject, handles);
 end
 
-% --- Executes on button press in pushbutton12.
+% --- pushbutton3: Open images in one folder
+function pushbutton3_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+rootfolder = pwd;
+[p,io]=p_setting();
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+now_image = 0;
+save(savefolder,'io','now_image');
+
+
+load_tif_lsm_folder(hObject,handles,p,io);
+
+set(handles.pushbutton2,'enable','on');
+set(handles.pushbutton12,'enable','on');
+set(handles.pushbutton13,'enable','on');
+set(handles.pushbutton14,'enable','on');
+set(handles.pushbutton4,'enable','on');
+% Update handles
+guidata(hObject, handles);
+end
+
+% --- Setting GUI
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+main_setting;
+%{
+rootfolder = pwd;
+p=p_setting();
+guifolder = [rootfolder '/[functions]/'];
+if ispc ==1
+    guifolder(findstr(guifolder, '/'))='\';
+end
+eval([guifolder 'main_setting']);
+%}
+end
+
+% --- RUN1 parameters GUI
+function pushbutton13_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+run1_parameters;
+end
+
+% --- step 1: identify nuclei and eliminate dividing cells
 function pushbutton12_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton12 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -117,9 +173,9 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % load p.mat
 step1_nuclearidentification(hObject, handles);
 
-set(handles.pushbutton16,'enable','on');
-set(handles.pushbutton19,'enable','on');
-set(handles.pushbutton22,'enable','on');
+%set(handles.pushbutton16,'enable','on');
+%set(handles.pushbutton19,'enable','on');
+%set(handles.pushbutton22,'enable','on');
 set(handles.pushbutton13,'enable','on');
 set(handles.pushbutton14,'enable','on');
 % Update handles
@@ -127,7 +183,7 @@ guidata(hObject, handles);
 
 end
 
-% --- Executes on button press in pushbutton16.
+% --- step 3: parallel to x-y plane, First round of DV plane finding.
 function pushbutton16_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton16 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -245,21 +301,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 end
 
-
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
-
-% --- Executes on button press in pushbutton2.
-function pushbutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
-
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
@@ -302,13 +343,6 @@ function pushbutton22_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 end
 
-% --- Executes on button press in pushbutton13.
-function pushbutton13_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton13 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
-
 % --- Executes on button press in pushbutton14.
 function pushbutton14_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton14 (see GCBO)
@@ -327,7 +361,7 @@ step1_nuclearidentification(hObject, handles);
 % each embryo is saved as ['filename' # '_xyz']
 % open all arrays and save them together as 'NFall.mat'
 
-% atep 3: parallel to x-y plane, First round of DV plane finding.
+% step 3: parallel to x-y plane, First round of DV plane finding.
 step3_alignment(hObject, handles)
 
 % step 4: CPD registration of all to CNFT1 (stk1)
@@ -347,14 +381,27 @@ Step6c_DisplayMarginGradient(p);
 
 
 end
-function p=p_setting()
+function [p,io]=p_setting()
 
 % Main parameter, IO
-p.io_segindex = 1;      % 2 segindex= the channel to be used to ID maxima
-p.io_intindex = 1;      % 1 intindex= the experimental channel to be measured
-p.io_savetiff = 1;      % save all tif files to folder
-p.io_totchan = 2;
-p.io_dataorder = 1;     % =1: chal1(1,4,7,10), =2: chal1(1,2,3,4)  
+%io.segindex = 2;      % 2 segindex= the channel to be used to ID maxima
+%io.intindex = 1;      % 1 intindex= the experimental channel to be measured
+io.savetiff = 1;      % save all tif files to folder
+io.totchan = 3;       % 2
+io.dataorder = 1;     % =1: chal1(1,4,7,10), =2: chal1(1,2,3,4)
+
+io.chal1_show = 1;    % Show Channel 1 measurement = 0(no show) or 1(show)
+io.chal2_show = 0;
+io.chal3_show = 1;
+io.chal4_show = 0;
+io.chal1_no = 1;      % Channel 1 name = {1,2,3,4,5} = {'Nuclei','signal1','signal2','signal3','none'}
+io.chal2_no = 2;
+io.chal3_no = 3;
+io.chal4_no = 4;
+io.chal1_name = '';    % Input Channel 1 name, For example: DAPI
+io.chal2_name = '';
+io.chal3_name = '';
+io.chal4_name = '';
 
 
 
@@ -371,6 +418,7 @@ p.id_r = 4;
 p.id_distniegh = 20; 
 p.id_PHHcutoff = 256;
 p.id_divcut = 1.4;
+p.id_removeYSL = 0;
 
 
 
@@ -417,75 +465,249 @@ p.avre_numper = 0.2;
 end
 
 % Main functions
-function load_tif_lsm(hObject,handles,p)
+function load_tif_lsm(hObject,handles,p,io)
 % Load tiff and lsm image files and convert into stack, save into stack.mat and convert into tiff files
 
-% data folder and image format
-set(handles.edit1,'String','Loading Images ...');
+
+%% data folder and image format
+set(handles.edit1,'String','Loading Images ...');pause(0.1);
 guidata(hObject, handles);
-imagename=uigetfile({'*.tif;*.lsm','Image Files (*.tif,*.lsm)'});
-basename=imagename(1:strfind(imagename,'.')-1);
-imageformat=imagename(strfind(imagename,'.'):end);
+imagename{1}=uigetfile({'*.tif;*.lsm','Image Files (*.tif,*.lsm)'});
+if imagename{1}==0
+    return;
+end
+
+
+%% load images tiff and lism and convert to basename and imageformat
+basename{1}=imagename{1}(1:strfind(imagename{1},'.')-1);
+imageformat{1}=imagename{1}(strfind(imagename{1},'.'):end);
 rootfolder = pwd;
 
 
-% save current_image to p.mat
-savefolder = [rootfolder '/[functions]/p.mat'];
+%% save current folder information to io.mat
+savefolder = [rootfolder '/[functions]/io.mat'];
 if ispc ==1
     savefolder(findstr(savefolder, '/'))='\';
 end
 
+% Create data folder
+if ismac||isunix==1
+    data_folder{1} = [rootfolder '/' basename{1} '/'];
+elseif ispc==1
+    data_folder{1} = [rootfolder '/' basename{1} '/'];
+end
+if exist(data_folder{1}) ~= 7
+    mkdir(data_folder{1});
+end
+addpath(data_folder{1});
+save(savefolder,'imagename','basename','imageformat','savefolder','data_folder','-append');
+
+
+%% convert image into multi-stack and save stack.mat and p.mat
+try
+    lsm_stack = tiffread(imagename{1});
+catch
+    if strcmp(imageformat,'.tif')==1
+        lsm_stack = readlsm_tif(imagename{1});        
+    else
+        lsm_stack = readlsm(imagename{1});     
+    end
+end
+lsm_stack=lsm_stack(1,1:120);    %[test_code]George
+
+% image information
+iinfo.Width = lsm_stack(1).width;
+iinfo.Height = lsm_stack(1).height;
+iinfo.BitDepth = lsm_stack(1).bits;
+iinfo.pageN = size(lsm_stack,2);
+
+% Create channel info
+for c=1:io.totchan
+    eval(['chal_info{c,1} = io.chal' num2str(c) '_show;']);
+    chal_info{c,2} = 0;
+    eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
+    eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,3} = ''Nuclei'';end']);
+    eval(['if io.chal' num2str(c) '_no ==2;chal_info{c,3} = ''Signal 1'';end']);
+    eval(['if io.chal' num2str(c) '_no ==3;chal_info{c,3} = ''Signal 2'';end']);
+    eval(['if io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
+    eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
+    eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
+    eval(['if io.chal' num2str(c) '_name ~='''';chal_info{c,3} = io.chal' num2str(c) '_name;end']);              
+end
+
+% export to stack
+endim=iinfo.pageN/io.totchan;
+for chal=1:io.totchan
+    startim=chal;j=1;
+    for t=startim:io.totchan:startim+(endim-1)*io.totchan
+        NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
+        j=j+1;
+    end;
+end
+p.io=io;
+save([data_folder{1} 'stack.mat'],'NFstk','-v7.3');
+save([data_folder{1} 'p.mat'],'p','iinfo','chal_info');
+
+
+%% Save tiff files
+if io.savetiff==1
+    if exist([data_folder{1} 'tiff_image.tif'],'file')==1
+        delete([data_folder{1} 'tiff_image.tif']);
+    end    
+    for chal=1:io.totchan
+        for m=1:size(NFstk{chal},3)
+            imwrite(NFstk{chal}(:,:,m),[data_folder{1} 'tiff_image.tif'], 'writemode', 'append');
+        end
+    end
+end
+clear NFstk iinfo chal_info
+
+% Finish process
+set(handles.edit1,'String','Finished!');
+guidata(hObject, handles);
+
+end
+function load_tif_lsm_folder(hObject,handles,p,io)
+% Load tiff and lsm image files and convert into stack, save into stack.mat and convert into tiff files
+
+
+%% data folder and image format
+set(handles.edit1,'String','Loading Images ...');pause(0.1);
+guidata(hObject, handles);
+rootfolder = pwd;
+image_folder=uigetdir(rootfolder);
+if image_folder==0
+    return;
+end    
+image_folder1 = [image_folder '/*.tif'];
+image_folder2 = [image_folder '/*.lsm'];
+if ispc==1
+    image_folder1(findstr(image_folder1, '/'))='\';
+    image_folder2(findstr(image_folder2, '/'))='\';
+end
+finf1 = dir(image_folder1);finf2 = dir(image_folder2);
+
+
+%% load images tiff and lism and convert to basename and imageformat
+if isempty(finf1)==1&&isempty(finf2)==0
+    for i=1:size(finf2,1)
+        imagename{i}=finf2(i).name;
+        basename{i}=imagename{i}(1:strfind(imagename{i},'.')-1);
+        imageformat{i}=imagename{i}(strfind(imagename{i},'.'):end);
+    end
+elseif isempty(finf1)==0&&isempty(finf2)==1
+    for i=1:size(finf1,1)
+        imagename{i}=finf1(i).name;
+        basename{i}=imagename{i}(1:strfind(imagename{i},'.')-1);
+        imageformat{i}=imagename{i}(strfind(imagename{i},'.'):end);
+    end
+    
+elseif isempty(finf1)==0&&isempty(finf2)==0
+    for i=1:size(finf1,1)
+        imagename{i}=finf1(i).name;
+        basename{i}=imagename{i}(1:strfind(imagename{i},'.')-1);
+        imageformat{i}=imagename{i}(strfind(imagename{i},'.'):end);
+    end
+    for i=1:size(finf2,1)
+        imagename{size(finf1,1)+i}=finf2(i).name;
+        basename{size(finf1,1)+i}=imagename{size(finf1,1)+i}(1:strfind(imagename{size(finf1,1)+i},'.')-1);
+        imageformat{size(finf1,1)+i}=imagename{size(finf1,1)+i}(strfind(imagename{size(finf1,1)+i},'.'):end);
+    end    
+else
+    set(handles.edit1,'String','Error: No images!');
+    guidata(hObject, handles);
+    return;
+end
+
+
+%% save current folder information to io.mat
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
 
 % Create data folder
 if ismac||isunix==1
-    data_folder = [rootfolder '/' basename '/'];
-elseif ispc==1
-    data_folder = [rootfolder '/' basename '/'];
-end
-if exist(data_folder) ~= 7
-    mkdir(data_folder);
-end
-addpath(data_folder);
-save(savefolder,'imagename','basename','imageformat','savefolder','data_folder','-append');
-
-% convert image into multi-stack
-try
-    lsm_stack = tiffread(imagename);
-catch
-    lsm_stack = readlsm(imagename);
-end
-
-lsm_stack=lsm_stack(1,1:50);
-% image information
-%Image_info = imfinfo([basename,imageformat]);
-iinfo.Width = lsm_stack(1).width;
-iinfo.Height = lsm_stack(1).height;
-%iinfo.Info = lsm_stack(1).info;
-iinfo.BitDepth = lsm_stack(1).bits;
-%iinfo.XResolution = lsm_stack(1).x_resolution;
-%iinfo.YResolution = lsm_stack(1).y_resolution;
-%iinfo.Color = lsm_stack(1).colors;
-iinfo.pageN = size(lsm_stack,2);
-
-% export to stack
-tf = iscell(lsm_stack(1).data);
-if tf ==1
-    chal_n=size(lsm_stack(1).data,2);
-    for chal=1:chal_n
-        for t=1:size(lsm_stack,2)
-            NFstk{chal}(:,:,t)=lsm_stack(1,t).data{chal};
+    for i=1:size(basename,2)
+        data_folder{i} = [rootfolder '/' basename{i} '/'];
+        if exist(data_folder{i}) ~= 7
+            mkdir(data_folder{i});
         end
-    end   
-else
-    endim=iinfo.pageN/p.io_totchan;
-    for chal=1:p.io_totchan
-        startim=chal;
-        for t=startim:p.io_totchan:startim+(endim-1)*p.io_totchan
-            NFstk{chal}(:,:,t)=lsm_stack(1,t).data;
-        end;
+        addpath(data_folder{i});
+    end
+elseif ispc==1
+    for i=1:size(basename,2)
+        data_folder{i} = [rootfolder '/' basename{i} '/'];
+        if exist(data_folder{i}) ~= 7
+            mkdir(data_folder{i});
+        end
+        addpath(data_folder{i});
     end
 end
-save([data_folder 'stack.mat'],'NFstk','iinfo','-v7.3');
+save(savefolder,'imagename','basename','imageformat','savefolder','data_folder','-append');
+
+
+%% convert image into multi-stack and save stack.mat and p.mat
+for i=1:size(basename,2)
+    % convert image into multi-stack
+    try
+        lsm_stack = tiffread(imagename{i});
+    catch
+        if strcmp(imageformat{i},'.tif')==1
+            lsm_stack = readlsm_tif(imagename{i});        
+        else
+            lsm_stack = readlsm(imagename{i});     
+        end
+    end
+    lsm_stack=lsm_stack(1,1:120);    %[test_code]George
+    
+    % image information
+    iinfo.Width = lsm_stack(1).width;
+    iinfo.Height = lsm_stack(1).height;
+    iinfo.BitDepth = lsm_stack(1).bits;
+    iinfo.pageN = size(lsm_stack,2);
+    
+    % Create channel info
+    for c=1:io.totchan
+        eval(['chal_info{c,1} = io.chal' num2str(c) '_show;']);
+        chal_info{c,2} = 0;
+        eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
+        eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,3} = ''Nuclei'';end']);
+        eval(['if io.chal' num2str(c) '_no ==2;chal_info{c,3} = ''Signal 1'';end']);
+        eval(['if io.chal' num2str(c) '_no ==3;chal_info{c,3} = ''Signal 2'';end']);
+        eval(['if io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
+        eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
+        eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
+        eval(['if io.chal' num2str(c) '_name ~='''';chal_info{c,3} = io.chal' num2str(c) '_name;end']);              
+    end
+
+    % export to stack
+    endim=iinfo.pageN/io.totchan;
+    for chal=1:io.totchan
+        startim=chal;j=1;
+        for t=startim:io.totchan:startim+(endim-1)*io.totchan
+            NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
+            j=j+1;
+        end;
+    end
+    p.io=io;
+    save([data_folder{i} 'stack.mat'],'NFstk','-v7.3');
+    save([data_folder{i} 'p.mat'],'p','iinfo','chal_info');
+
+
+%% Save tiff files
+    if io.savetiff==1
+        if exist([data_folder{i} 'tiff_image.tif'],'file')==1
+            delete([data_folder{i} 'tiff_image.tif']);
+        end
+        for chal=1:io.totchan
+            for m=1:size(NFstk{chal},3)
+                imwrite(NFstk{chal}(:,:,m),[data_folder{i} 'tiff_image.tif'], 'writemode', 'append');
+            end
+        end
+    end
+clear NFstk iinfo chal_info
+end
 
 % Finish process
 set(handles.edit1,'String','Finished!');
@@ -493,26 +715,41 @@ guidata(hObject, handles);
 
 end
 function step1_nuclearidentification(hObject, handles)
+% step 1: identify nuclei and eliminate dividing cells
 
-%% step 1: identify nuclei and eliminate dividing cells
-set(handles.edit1,'String','Run step1_nuclearidentification ...');
+% pre
+set(handles.edit1,'String','Run step1_nuclearidentification ...');pause(0.1);
 guidata(hObject, handles);
 
-% load p.mat
+% load io.mat
 rootfolder = pwd;
-savefolder = [rootfolder '/[functions]/p.mat'];
+savefolder = [rootfolder '/[functions]/io.mat'];
 load(savefolder);
-load([data_folder 'stack.mat']);
+
+for i=1:size(imagename,2)
     
-[xyzintsegdat,xyzintseg]=seg_auto(hObject, handles, NFstk, p, iinfo, basename); %% identify nuclei centerpoints and extract nuclear intensities
+    now_image = i;
+    save(savefolder,'now_image','-append');
+    load([data_folder{i} 'stack.mat']);load([data_folder{i} 'p.mat']);
 
-NFstk_xyz = plotnieghbors(xyzintsegdat, p.id_r, p.id_distniegh, p.id_PHHcutoff, p.id_divcut);  %% eliminates dividing cells
+    xyzintsegdat=seg_auto(hObject, handles, NFstk, p, iinfo, basename{i},chal_info); %% identify nuclei centerpoints and extract nuclear intensities
+    for j=1:size(xyzintsegdat,2)
+        if isempty(xyzintsegdat{j})~=1
+            NFstk_xyz{j} = plotnieghbors(xyzintsegdat{j}, p.id_r, p.id_distniegh, p.id_PHHcutoff, p.id_divcut);  %% eliminates dividing cells
+        end
+    end
+    % Finish process
+    save([data_folder{i} 'stack.mat'],'xyzintsegdat','NFstk_xyz','-append');
+    
+    if p.id_removeYSL==1
+        [xyzintsegdat_noYSL] = removeYSL(xyzintsegdat);
+        show_xyzintsegdat_noYSL(hObject,handles,xyzintsegdat_noYSL,basename{i})
+        save([data_folder{i} 'stack.mat'],'xyzintsegdat_noYSL','-append');
+    end
+end
 
-% Finish process
-save([data_folder 'stack.mat'],'xyzintsegdat','xyzintseg','NFstk_xyz','-append');
 set(handles.edit1,'String','RUN1 Finished!');
 guidata(hObject, handles);
-
 
 end
 function step2_
@@ -538,175 +775,157 @@ function step3_alignment(hObject, handles)
 %        (8) Profile plotting
 %
 % * (current step)
-set(handles.edit1,'String','Run step3_alignment ...');
+set(handles.edit1,'String','Run step3_alignment ...');pause(0.1);
 guidata(hObject, handles);
 
 % load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/p.mat'];
 load(savefolder);
-load([data_folder 'stack.mat']);
 
+for ii=1:size(imagename,2)
+    load([data_folder{ii} 'stack.mat']);
 
-%input all relavent labels here:
-stknum= p.ali_stknum;        %array of stk numbers
-stkname= 'NFall';    %string, filename
-stkmatname= 'NFstk';   %string, matlab filename
+    %input all relavent labels here:
+    stknum= p.ali_stknum;        %array of stk numbers
+    stkname= 'NFall';    %string, filename
+    stkmatname= 'NFstk';   %string, matlab filename
 
+    %---------------------------- 1st DV finding ------------------------------
 
-
-
-%---------------------------- 1st DV finding ------------------------------
-    % load data
-%load(stkname );
-
-for i=stknum
-    Y = NFstk;
-    %eval(['Y=' stkmatname '' int2str(i) ';']);
+    Y = xyzintsegdat;
     Y(:,1:2)=Y(:,1:2)*0.5535; Y(:,3)=-Y(:,3)*2.2; % Set position data in units of microns. 
-    eval(['data.set' int2str(i) '= Y']);
-end;    
+    eval(['data.set' int2str(ii) '= Y']);
 
     %%%%%%%% Plane regression to be parallel to x-y plane %%%%%%%
-        % Set the options for plane regression and rotation
-opti.show = p.ali_show;     % show every iteration of regression and rotation (0: not show, 1: show)
-opti.maxNO = p.ali_maxNO;   % max number of iterations
-opti.limit = p.ali_limit; % if the angle between the test and reference regression planes reaches below this limit, regression stops
-   %could be 1e-6 to 1e-8
-   
-x_y_plane= [1000*rand(10,1) 1000*rand(10,1) zeros(10,1)];   
-                   % set three points in the xy plane to determine the xy plane for use of the function CPD_preprocessing for plane regression
+    % Set the options for plane regression and rotation
+    opti.show = p.ali_show;     % show every iteration of regression and rotation (0: not show, 1: show)
+    opti.maxNO = p.ali_maxNO;   % max number of iterations
+    opti.limit = p.ali_limit; % if the angle between the test and reference regression planes reaches below this limit, regression stops could be 1e-6 to 1e-8
 
-for i=stknum                % Rotate the Nuclei data and make its regression plane parallel to x_y_plane
-    eval(['[x, y, b] = CPD_preprocessing(x_y_plane, data.set' int2str(i) '(:,1:3), opti);']);
-    eval(['data.set' int2str(i) '(:,1:3) = y;']);
-end;
+    x_y_plane= [1000*rand(10,1) 1000*rand(10,1) zeros(10,1)];   
+    % set three points in the xy plane to determine the xy plane for use of the function CPD_preprocessing for plane regression
 
-        % 4D plot for each individual stk after plane regression and rotation
-% figure, scatter3(data.set1(:,1), data.set1(:,2), data.set1(:,3), 20, data.set1(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set2(:,1), data.set2(:,2), data.set2(:,3), 20, data.set2(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set3(:,1), data.set3(:,2), data.set3(:,3), 20, data.set3(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set4(:,1), data.set4(:,2), data.set4(:,3), 20, data.set4(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set5(:,1), data.set5(:,2), data.set5(:,3), 20, data.set5(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set6(:,1), data.set6(:,2), data.set6(:,3), 20, data.set6(:,5), 'filled'); colormap('HSV');
+    for i=stknum                % Rotate the Nuclei data and make its regression plane parallel to x_y_plane
+        eval(['[x, y, b] = CPD_preprocessing(x_y_plane, data.set' int2str(i) '(:,1:3), opti);']);
+        eval(['data.set' int2str(i) '(:,1:3) = y;']);
+    end;
+
+    % 4D plot for each individual stk after plane regression and rotation
+    % figure, scatter3(data.set1(:,1), data.set1(:,2), data.set1(:,3), 20, data.set1(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set2(:,1), data.set2(:,2), data.set2(:,3), 20, data.set2(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set3(:,1), data.set3(:,2), data.set3(:,3), 20, data.set3(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set4(:,1), data.set4(:,2), data.set4(:,3), 20, data.set4(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set5(:,1), data.set5(:,2), data.set5(:,3), 20, data.set5(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set6(:,1), data.set6(:,2), data.set6(:,3), 20, data.set6(:,5), 'filled'); colormap('HSV');
 
 
     %%%%%%%% DV plane finding (dvmethod = 2 (ployfit method), approximate) %%%%%%%%
-        % Set parameters for dv plane finding, set parameters for and test each embryo one by one
-parameters.dvmethod = p.ali_dvmethod;
-parameters.stapo = p.ali_stapo1; 
-parameters.endpo = p.ali_endpo1;
+    % Set parameters for dv plane finding, set parameters for and test each embryo one by one
+    parameters.dvmethod = p.ali_dvmethod;
+    parameters.stapo = p.ali_stapo1; 
+    parameters.endpo = p.ali_endpo1;
 
-for i=stknum
-stkNO = i;                  % to change
+    for i=stknum
+        stkNO = i;
         % if dvmethod 2 doesn't work well, use the following method 1
-%     %%%%%%%% DV plane finding (dvmethod = 1 (default: line regression method), approximate) %%%%%%%%
-%         % Set parameters for dv plane finding, set parameters for and test each embryo one by one
- parameters.bandwidth = p.ali_bandwidth;   % to change
- parameters.NOmaxPo = p.ali_NOmaxPo;      % to change  
- parameters.stapo = p.ali_stapo2;      % to change
- parameters.endpo = p.ali_endpo2;        % to change
-% stkNO = 2;                  % to change
+        % DV plane finding (dvmethod = 1 (default: line regression method), approximate) %%%%%%%%
+        % Set parameters for dv plane finding, set parameters for and test each embryo one by one
+        parameters.bandwidth = p.ali_bandwidth;   % to change
+        parameters.NOmaxPo = p.ali_NOmaxPo;      % to change  
+        parameters.stapo = p.ali_stapo2;      % to change
+        parameters.endpo = p.ali_endpo2;        % to change
+        % stkNO = 2;                  % to change
 
-
-        % data used for dvplane shall be stored in a structure with name ____.set1, ____.set2, ......  
-dataNew = dvplane(data, stkNO, parameters);
+       % data used for dvplane shall be stored in a structure with name ____.set1, ____.set2, ......  
+        dataNew = dvplane(data, stkNO, parameters);
 
         % plot nuclei cloud after dvplane finding (dvmethod = 1)
-%figure, scatter3(dataNew(:,1), dataNew(:,2), dataNew(:,3), 20, dataNew(:,5),'filled'); colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data
-tem1 = [];
-for k=1:size(dataNew,1)
-    datatemp = dataNew(k,3);
-    if datatemp > -70 && datatemp < -40
-       tem1 = cat(1, tem1, dataNew(k,:));    
+        %figure, scatter3(dataNew(:,1), dataNew(:,2), dataNew(:,3), 20, dataNew(:,5),'filled'); colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data
+        tem1 = [];
+        for k=1:size(dataNew,1)
+            datatemp = dataNew(k,3);
+            if datatemp > -70 && datatemp < -40
+               tem1 = cat(1, tem1, dataNew(k,:));    
+            end;
+        end;  
+        figure, scatter(tem1(:,1), tem1(:,2), 20, tem1(:,5),'filled');  colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data posterior band
+        save( [stkname int2str(i) '_pre_YSL_deletion'], 'dataNew');
     end;
-end;  
-figure, scatter(tem1(:,1), tem1(:,2), 20, tem1(:,5),'filled');  colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data posterior band
 
-save( [stkname int2str(i) '_pre_YSL_deletion'], 'dataNew');
+    for i=stknum
+        eval(['load(''' stkname int2str(i) '_pre_YSL_deletion'');']);
+        [dataNew_noYSL] = removeYSL(dataNew);
+        save( [stkname int2str(i) '_noYSL'], 'dataNew_noYSL');
+    end
+    data=[];
+
+    for i=stknum    
+        eval(['load(''' stkname int2str(i) '_noYSL'');']);
+        Y = dataNew_noYSL;  
+        %Y(:,1:2)=Y(:,1:2)*0.5535; Y(:,3)=-Y(:,3)*2.2; % Set position data in units of microns. 
+        eval(['data.set' int2str(i) '= Y']);
+    end;    
+
+    %%%%%%%% Plane regression to be parallel to x-y plane %%%%%%%
+    % Set the options for plane regression and rotation
+    opti.show = p.ali_show;     % show every iteration of regression and rotation (0: not show, 1: show)
+    opti.maxNO = p.ali_maxNO;   % max number of iterations
+    opti.limit = p.ali_limit; % if the angle between the test and reference regression planes reaches below this limit, regression stops
+    %could be 1e-6 to 1e-8
+    x_y_plane= [1000*rand(10,1) 1000*rand(10,1) zeros(10,1)];   
+    % set three points in the xy plane to determine the xy plane for use of the function CPD_preprocessing for plane regression
+
+    for i=stknum                % Rotate the Nuclei data and make its regression plane parallel to x_y_plane
+        eval(['[x, y, b] = CPD_preprocessing(x_y_plane, data.set' int2str(i) '(:,1:3), opti);']);
+        eval(['data.set' int2str(i) '(:,1:3) = y;']);
+    end;
+
+    % 4D plot for each individual stk after plane regression and rotation
+    % figure, scatter3(data.set1(:,1), data.set1(:,2), data.set1(:,3), 20, data.set1(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set2(:,1), data.set2(:,2), data.set2(:,3), 20, data.set2(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set3(:,1), data.set3(:,2), data.set3(:,3), 20, data.set3(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set4(:,1), data.set4(:,2), data.set4(:,3), 20, data.set4(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set5(:,1), data.set5(:,2), data.set5(:,3), 20, data.set5(:,5), 'filled'); colormap('HSV');
+    % figure, scatter3(data.set6(:,1), data.set6(:,2), data.set6(:,3), 20, data.set6(:,5), 'filled'); colormap('HSV');
 
 
+    %%%%%%%% DV plane finding (dvmethod = 2 (ployfit method), approximate) %%%%%%%%
+    % Set parameters for dv plane finding, set parameters for and test each embryo one by one
+    parameters.dvmethod = p.ali_dvmethod2;
+    parameters.stapo = p.ali_stapo1; 
+    parameters.endpo = p.ali_endpo1;
 
-end;
+    for i=stknum
+    stkNO = i;                  % to change
+            % if dvmethod 2 doesn't work well, use the following method 1
+    %     %%%%%%%% DV plane finding (dvmethod = 1 (default: line regression method), approximate) %%%%%%%%
+    %         % Set parameters for dv plane finding, set parameters for and test each embryo one by one
+     parameters.bandwidth = p.ali_bandwidth;   % to change
+     parameters.NOmaxPo = p.ali_NOmaxPo;      % to change  
+     parameters.stapo = p.ali_stapo2;      % to change
+     parameters.endpo = p.ali_endpo2;        % to change
+    % stkNO = 2;                  % to change
 
-close all
+    % data used for dvplane shall be stored in a structure with name ____.set1, ____.set2, ......  
+    dataNew = dvplane(data, stkNO, parameters);
 
-for i=stknum
-    eval(['load(''' stkname int2str(i) '_pre_YSL_deletion'');']);
+    % plot nuclei cloud after dvplane finding (dvmethod = 1)
+    %figure, scatter3(dataNew(:,1), dataNew(:,2), dataNew(:,3), 20, dataNew(:,5),'filled'); colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data
+    tem1 = [];
+    for k=1:size(dataNew,1)
+        datatemp = dataNew(k,3);
+        if datatemp > -70 && datatemp < -40
+           tem1 = cat(1, tem1, dataNew(k,:));    
+        end;
+    end;  
+    figure, scatter(tem1(:,1), tem1(:,2), 20, tem1(:,5),'filled');  colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data posterior band
 
-    [dataNew_noYSL] = removeYSL(dataNew);
-    
-    save( [stkname int2str(i) '_noYSL'], 'dataNew_noYSL');
+    save( [stkname int2str(i) '_poststp4'], 'dataNew');
+    end;
+
 end
 
-data=[];
-
-
-for i=stknum    
-    eval(['load(''' stkname int2str(i) '_noYSL'');']);
-    Y = dataNew_noYSL;  
-    %Y(:,1:2)=Y(:,1:2)*0.5535; Y(:,3)=-Y(:,3)*2.2; % Set position data in units of microns. 
-    eval(['data.set' int2str(i) '= Y']);
-end;    
-
-    %%%%%%%% Plane regression to be parallel to x-y plane %%%%%%%
-        % Set the options for plane regression and rotation
-opti.show = p.ali_show;     % show every iteration of regression and rotation (0: not show, 1: show)
-opti.maxNO = p.ali_maxNO;   % max number of iterations
-opti.limit = p.ali_limit; % if the angle between the test and reference regression planes reaches below this limit, regression stops
-   %could be 1e-6 to 1e-8
-   
-x_y_plane= [1000*rand(10,1) 1000*rand(10,1) zeros(10,1)];   
-                   % set three points in the xy plane to determine the xy plane for use of the function CPD_preprocessing for plane regression
-
-for i=stknum                % Rotate the Nuclei data and make its regression plane parallel to x_y_plane
-    eval(['[x, y, b] = CPD_preprocessing(x_y_plane, data.set' int2str(i) '(:,1:3), opti);']);
-    eval(['data.set' int2str(i) '(:,1:3) = y;']);
-end;
-
-        % 4D plot for each individual stk after plane regression and rotation
-% figure, scatter3(data.set1(:,1), data.set1(:,2), data.set1(:,3), 20, data.set1(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set2(:,1), data.set2(:,2), data.set2(:,3), 20, data.set2(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set3(:,1), data.set3(:,2), data.set3(:,3), 20, data.set3(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set4(:,1), data.set4(:,2), data.set4(:,3), 20, data.set4(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set5(:,1), data.set5(:,2), data.set5(:,3), 20, data.set5(:,5), 'filled'); colormap('HSV');
-% figure, scatter3(data.set6(:,1), data.set6(:,2), data.set6(:,3), 20, data.set6(:,5), 'filled'); colormap('HSV');
-
-
-    %%%%%%%% DV plane finding (dvmethod = 2 (ployfit method), approximate) %%%%%%%%
-        % Set parameters for dv plane finding, set parameters for and test each embryo one by one
-parameters.dvmethod = p.ali_dvmethod2;
-parameters.stapo = p.ali_stapo1; 
-parameters.endpo = p.ali_endpo1;
-
-
-for i=stknum
-stkNO = i;                  % to change
-        % if dvmethod 2 doesn't work well, use the following method 1
-%     %%%%%%%% DV plane finding (dvmethod = 1 (default: line regression method), approximate) %%%%%%%%
-%         % Set parameters for dv plane finding, set parameters for and test each embryo one by one
- parameters.bandwidth = p.ali_bandwidth;   % to change
- parameters.NOmaxPo = p.ali_NOmaxPo;      % to change  
- parameters.stapo = p.ali_stapo2;      % to change
- parameters.endpo = p.ali_endpo2;        % to change
-% stkNO = 2;                  % to change
-
-        % data used for dvplane shall be stored in a structure with name ____.set1, ____.set2, ......  
-dataNew = dvplane(data, stkNO, parameters);
-
-        % plot nuclei cloud after dvplane finding (dvmethod = 1)
-%figure, scatter3(dataNew(:,1), dataNew(:,2), dataNew(:,3), 20, dataNew(:,5),'filled'); colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data
-tem1 = [];
-for k=1:size(dataNew,1)
-    datatemp = dataNew(k,3);
-    if datatemp > -70 && datatemp < -40
-       tem1 = cat(1, tem1, dataNew(k,:));    
-    end;
-end;  
-figure, scatter(tem1(:,1), tem1(:,2), 20, tem1(:,5),'filled');  colormap('HSV'); colorbar; caxis([0 256]); % plot DV-adjusted final data posterior band
-
-save( [stkname int2str(i) '_poststp4'], 'dataNew');
-end;
 end
 function step4_registration(hObject, handles)
 
@@ -800,9 +1019,7 @@ ls=6;
 end
 
 %step 1 sub functions
-function [xyzintsegdat,xyzintseg]=seg_auto(hObject, handles, stack, p, iinfo, basename)
-
-
+function xyzintsegdat=seg_auto(hObject, handles, stack, p, iinfo, basename,chal_info)
 %{
 % 1. imports a tiff confocal stack with 2 channels [importstackone()]
 % 2. smooths nuclei labeled image in 3-D [smooth3D()]
@@ -840,64 +1057,86 @@ function [xyzintsegdat,xyzintseg]=seg_auto(hObject, handles, stack, p, iinfo, ba
     %saveim=input('save images with maximas? (1=yes, 2=no) ');
     %end;
 %}
-%%%%%%  Main function  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-%%%%%% Save tiff files into folder %%%%%%%%%%%%%%%
-
-starttime=clock;
+%% pre-process
 tic
-maximaxyintz=[];   %'maximaxyz' will hold the xyz coordinates of all maxima in each plane
+%maximaxyintz=[];   %'maximaxyz' will hold the xyz coordinates of all maxima in each plane
 
-%%%%%%%%  imports both channels %%%%%%%%%%%%%%%%%%%%%%
-%[segstack]=importstackone(basename, totchan, segindex);
-%[datstack,info]=importstackone(basename, totchan, intindex);
-%disp('import complete')
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
-%toc
-if p.io_segindex<=size(stack,2)
-    segstack = stack{p.io_segindex};
+
+%% find nuclei channel and obtain xyzintseg matrix
+chal_matrix = cell2mat(chal_info(:,1:2));
+nuc_i = find(chal_matrix(:,2));
+segstack = stack{nuc_i};
+[imstksm]=smooth3D(segstack, p.id_x1, p.id_y1, p.id_z1); % smooths the nuclei label channel
+[maximaintclean, fragall, fragconc, coloroverlay]=maxima3D(imstksm, p, iinfo); % finds maximas of all nuclei from smoothed channel
+[xyzintseg]=intensityfinder3D(segstack, maximaintclean, p.id_x1, p.id_y1, p.id_z1); %finds the intensities in each stack at the maxima points
+  
+
+%% find signal channel and obtain data show matrix
+data_i = find(chal_matrix(:,1));
+for i=1:size(data_i,1)
+    s=data_i(i,1);
+    eval(['[xyzintsegdat{' num2str(s) '}]=intensityfinder3D(stack{s}, xyzintseg, p.id_x1, p.id_y1, p.id_z1);']);   % finds the intensities in each stack at the maxima points
 end
-if p.io_intindex<=size(stack,2)
-    datstack = stack{p.io_intindex};
+
+
+%% Show GUI axes1 and output figures in data folder
+% axes1
+ax = s;
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+caxis([0, 65535]);colormap(jet);colorbar;title([basename '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+set(h,'Enable','on');
+
+% output figures
+for i=1:size(data_i,1)
+    s=data_i(i,1);
+    ax=s;
+    fh = figure;set(fh,'Units','pixels','visible','off');
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, 65535]);colormap(jet);colorbar;title([basename '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    if ispc ==1
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''\xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    else
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''/xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    end
 end
-
-
-%%%%%%% smooths the nuclei label channel %%%%%%%%%%%%
-[imstksm]=smooth3D(segstack, p.id_x1, p.id_y1, p.id_z1);
-disp('pre-processing complete')
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-toc
-
-%%%%%% finds maximas of all nuclei from smoothed channel %%%%%%%%%%%%%%%
-
-[maximaintclean, fragall, fragconc, coloroverlay]=maxima3D(imstksm, p, iinfo);
-%[maximaintclean, fragall, fragconc, coloroverlay]=maxima3D(imstksm, p,info);
-disp('segmentation complete')
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-toc
-
-%%%%% finds the intensities in each stack at the maxima points %%%%%%%%%
-[xyzintseg]=intensityfinder3D(segstack, maximaintclean, p.id_x1, p.id_y1, p.id_z1);
-[xyzintsegdat]=intensityfinder3D(datstack, xyzintseg, p.id_x1, p.id_y1, p.id_z1);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-toc
-
-%%%% displays number of combined nuclei (troubleshooting) %%%%%%%%%%
-%fragall=fragall
-%fragconc=fragconc
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-toc
-endtime=clock;
-
-
-figure;scatter3(xyzintsegdat(:,1),xyzintsegdat(:,2),xyzintsegdat(:,3),20,xyzintsegdat(:,5));
-caxis([0, 65535]);colormap(jet);colorbar;title(basename);
-
 
 % Finish process
 set(handles.edit1,'String','Finished!');
 guidata(hObject, handles);
+
+end
+function show_xyzintsegdat_noYSL(hObject,handles,xyzintsegdat,basename)
+
+% Axes1
+set(handles.axes1,'Units','pixels');
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+axes(handles.axes1);
+%imagesc(myImage);
+%set(handles.axes1,'Units','normalized');
+scatter3(xyzintsegdat(:,1),xyzintsegdat(:,2),xyzintsegdat(:,3),20,xyzintsegdat(:,5));
+caxis([0, 65535]);colormap(jet);colorbar;title(basename);pause(0.1);h=rotate3d;
+set(h,'Enable','on');
+
+fh = figure;set(fh,'Units','pixels','visible','off');
+scatter3(xyzintsegdat(:,1),xyzintsegdat(:,2),xyzintsegdat(:,3),20,xyzintsegdat(:,5));
+caxis([0, 65535]);colormap(jet);colorbar;title([basename '/_noYSL']);pause(0.1);h=rotate3d;
+if ispc ==1
+    set(fh,'visible','on');
+    saveas(fh, [basename '\xyzintsegdat_noYSL.fig']);
+    close(fh);
+else
+    set(fh,'visible','on');
+    saveas(fh, [basename '/xyzintsegdat_noYSL.fig']);
+    close(fh);
+end
 
 end
 function [xyzintsegdat] = stacksegint3D140plus(basename, segindex, intindex, x1, y1, z1, noisemin, noisemax, pix, dist)
@@ -1629,10 +1868,30 @@ for i=1:size(tiff_info,1)/2
     lsm_stack(i).bits = tiff_info(2*i-1).BitsPerSample(1);
     stackdata = imread(lsmfile,2*i-1);
     for j=1:size(stackdata,3)
-        lsm_stack(i).data{1,j} = stackdata(:,:,j);
+        lsm_stack(i).data = stackdata(:,:,j);
     end
     lsm_stack(i).lsm.VoxelSizeX = 1.0982e-07;
     lsm_stack(i).lsm.VoxelSizeZ = 1.0982e-07;
+end
+
+end
+function lsm_stack = readlsm_tif(lsmfile)
+
+tiff_info = imfinfo(lsmfile);
+m = size(imread(lsmfile,1),3);
+k=1;
+for i=1:size(tiff_info,1)
+    for j=1:m
+        lsm_stack(k).filename = tiff_info(i).Filename;
+        lsm_stack(k).width = tiff_info(i).Width;
+        lsm_stack(k).height = tiff_info(i).Height;
+        lsm_stack(k).bits = tiff_info(i).BitsPerSample(1);
+        stackdata = imread(lsmfile,i);
+        lsm_stack(k).data = stackdata(:,:,j);
+        lsm_stack(k).lsm.VoxelSizeX = 1.0982e-07;
+        lsm_stack(k).lsm.VoxelSizeZ = 1.0982e-07;
+        k=k+1;
+    end
 end
 
 end
@@ -1716,7 +1975,7 @@ function stack = tiffread(filename, indices)
 % Cell Biology and Biophysics, EMBL; Meyerhofstrasse 1; 69117 Heidelberg; Germany
 % http://www.embl.org
 % http://www.cytosim.org
-
+warning off;
 
 
 
@@ -2710,7 +2969,7 @@ f = warndlg('close this box after you have selected point 1', 'Instructions');
 drawnow     % Necessary to print the message
 waitfor(f);
 
-dcm_obj = datacursormode(1);
+dcm_obj = datacursormode(gcf);
 info_struct = getCursorInfo(dcm_obj);  % !! use ginput to replace getCursorInfo(dcm_obj)
 xyz1=info_struct.Position;
 
@@ -2722,7 +2981,7 @@ drawnow     % Necessary to print the message
 waitfor(f);
 
 
-dcm_obj = datacursormode(1);
+dcm_obj = datacursormode(gcf);
 info_struct = getCursorInfo(dcm_obj);
 xyz2=info_struct.Position;
 
@@ -2732,7 +2991,7 @@ z2=xyz2(1,3);
 
 %[x1, z1]=ginput(1);
 %[x2, z2]=ginput(1);
-
+close(gcf);
 
 
 m=(z2-z1)/(x2-x1);
@@ -2744,7 +3003,7 @@ b=-m*x1+z1;
 stkout=stkin;
 stkout(a,:)=[];
 
-close all
+%close all
 end
 function b = plane_regression(inputdata)
 
@@ -2936,7 +3195,7 @@ end;
 
 
 
-figure('units','normalized','outerposition',[0 0 1 1])
+figure('units','normalized','outerposition',[0.1 0.1 0.8 0.8])
 
 %contmax=max(xyzin(:,intcol));
 map=hsv(128);
