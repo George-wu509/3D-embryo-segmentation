@@ -79,6 +79,9 @@ if ispc ==1
 end
 load(d_fol);load(s_fol);
 handles.NFstk = NFstk;
+if exist('coloroverlay','var')~=0
+    handles.coloroverlay = coloroverlay;
+end
 
 %% setup handles.slider1,edit1, popupmenu2, axes1 property according to image1
 % setup popupmenu2
@@ -97,7 +100,7 @@ set(handles.edit1,'String','1');
 maxcolorbar_input=str2num(get(handles.edit2,'String'));
 
 
-% show axes1
+%% show axes1
 myImage = NFstk{1,1}(:,:,1);
 maxcolorbar=256;
 if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
@@ -108,6 +111,14 @@ myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
+
+%% show axes2
+if exist('handles.coloroverlay','var')~=0
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(coloroverlay(:,:,1:3));colorbar;
+    set(handles.axes2,'Units','normalized');
+end
 
 
 %% Choose default command line output for Raw_image
@@ -173,9 +184,19 @@ imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
 
 
+%% show axes2
+if exist('handles.coloroverlay','var')~=0
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    set(handles.axes2,'Units','normalized');
+end
+
+
 % update handles
 guidata(hObject, handles);
 end
+
 
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
@@ -186,8 +207,8 @@ function edit1_Callback(hObject, eventdata, handles)
 %% input edit value and update slider1 and popupmenu2
 chal_no=get(handles.popupmenu2,'Value');
 page_no=round(str2num(get(handles.edit1,'String')));
-if page_no>size(handles.NFstk{1,2},3)
-    page_no=size(handles.NFstk{1,2},3);
+if page_no>size(handles.NFstk{1,1},3)
+    page_no=size(handles.NFstk{1,1},3);
 elseif page_no<1
     page_no=1;
 end
@@ -211,6 +232,15 @@ myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
+
+
+%% show axes2
+if exist('handles.coloroverlay','var')~=0
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    set(handles.axes2,'Units','normalized');
+end
 
 
 % update handles
@@ -247,6 +277,15 @@ myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
+
+
+%% show axes2
+if exist('handles.coloroverlay','var')~=0
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    set(handles.axes2,'Units','normalized');
+end
 
 
 % update handles
@@ -286,6 +325,15 @@ imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
 
 
+%% show axes2
+if exist('handles.coloroverlay','var')~=0
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    set(handles.axes2,'Units','normalized');
+end
+
+
 % update handles
 guidata(hObject, handles);
 end
@@ -317,6 +365,15 @@ myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
+
+
+%% show axes2
+if exist('handles.coloroverlay','var')~=0
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    set(handles.axes2,'Units','normalized');
+end
 
 
 % update handles
@@ -364,6 +421,15 @@ myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
+
+
+%% show axes2
+if exist('handles.coloroverlay','var')~=0
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    set(handles.axes2,'Units','normalized');
+end
 
 
 

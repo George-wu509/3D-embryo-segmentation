@@ -22,7 +22,7 @@ function varargout = main_setting(varargin)
 
 % Edit the above text to modify the response to help main_setting
 
-% Last Modified by GUIDE v2.5 30-Sep-2016 16:00:12
+% Last Modified by GUIDE v2.5 30-Sep-2016 19:06:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -41,6 +41,104 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+end
+
+% --- Executes just before main_setting is made visible.
+function main_setting_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to main_setting (see VARARGIN)
+
+% load p.mat
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+N=io.totchan;
+set(handles.popupmenu2,'Value',N);
+if N==1
+    set(handles.popupmenu3,'Visible','On');
+    set(handles.popupmenu4,'Visible','Off');
+    set(handles.popupmenu5,'Visible','Off');
+    set(handles.popupmenu6,'Visible','Off');
+    set(handles.text8,'Visible','On');
+    set(handles.text9,'Visible','Off');
+    set(handles.text10,'Visible','Off');
+    set(handles.text11,'Visible','Off');
+    set(handles.checkbox2,'Visible','On');
+    set(handles.checkbox3,'Visible','Off');
+    set(handles.checkbox4,'Visible','Off');
+    set(handles.checkbox5,'Visible','Off');
+    set(handles.edit4,'Visible','On');
+    set(handles.edit5,'Visible','Off');
+    set(handles.edit6,'Visible','Off');
+    set(handles.edit7,'Visible','Off');
+elseif N==2
+    set(handles.popupmenu3,'Visible','On');
+    set(handles.popupmenu4,'Visible','On');
+    set(handles.popupmenu5,'Visible','Off');
+    set(handles.popupmenu6,'Visible','Off');
+    set(handles.text8,'Visible','On');
+    set(handles.text9,'Visible','On');
+    set(handles.text10,'Visible','Off');
+    set(handles.text11,'Visible','Off');
+    set(handles.checkbox2,'Visible','On');
+    set(handles.checkbox3,'Visible','On');
+    set(handles.checkbox4,'Visible','Off');
+    set(handles.checkbox5,'Visible','Off');
+    set(handles.edit4,'Visible','On');
+    set(handles.edit5,'Visible','On');
+    set(handles.edit6,'Visible','Off');
+    set(handles.edit7,'Visible','Off');
+    
+elseif N==3
+    set(handles.popupmenu3,'Visible','On');
+    set(handles.popupmenu4,'Visible','On');
+    set(handles.popupmenu5,'Visible','On');
+    set(handles.popupmenu6,'Visible','Off');
+    set(handles.text8,'Visible','On');
+    set(handles.text9,'Visible','On');
+    set(handles.text10,'Visible','On');
+    set(handles.text11,'Visible','Off');
+    set(handles.checkbox2,'Visible','On');
+    set(handles.checkbox3,'Visible','On');
+    set(handles.checkbox4,'Visible','On');
+    set(handles.checkbox5,'Visible','Off');
+    set(handles.edit4,'Visible','On');
+    set(handles.edit5,'Visible','On');
+    set(handles.edit6,'Visible','On');
+    set(handles.edit7,'Visible','Off');
+elseif N==4
+    set(handles.popupmenu3,'Visible','On');
+    set(handles.popupmenu4,'Visible','On');
+    set(handles.popupmenu5,'Visible','On');
+    set(handles.popupmenu6,'Visible','On');
+    set(handles.text8,'Visible','On');
+    set(handles.text9,'Visible','On');
+    set(handles.text10,'Visible','On');
+    set(handles.text11,'Visible','On');
+    set(handles.checkbox2,'Visible','On');
+    set(handles.checkbox3,'Visible','On');
+    set(handles.checkbox4,'Visible','On');
+    set(handles.checkbox5,'Visible','On');
+    set(handles.edit4,'Visible','On');
+    set(handles.edit5,'Visible','On');
+    set(handles.edit6,'Visible','On');
+    set(handles.edit7,'Visible','On');
+end
+% Choose default command line output for main_setting
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes main_setting wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
 end
 % End initialization code - DO NOT EDIT
 
@@ -110,7 +208,143 @@ guidata(hObject, handles);
 varargout{1} = handles.output;
 end
 
-% --- Executes on selection change in popupmenu2.
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% find p.mat in [function] folder
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+
+% Hint: delete(hObject) closes the figure
+if now_image ==0
+    io.totchan=get(handles.popupmenu2,'Value');
+    io.chal1_show=get(handles.checkbox2,'Value');
+    io.chal2_show=get(handles.checkbox3,'Value');
+    io.chal3_show=get(handles.checkbox4,'Value');
+    io.chal4_show=get(handles.checkbox5,'Value');
+    io.chal1_no=get(handles.popupmenu3,'Value');
+    io.chal2_no=get(handles.popupmenu4,'Value');
+    io.chal3_no=get(handles.popupmenu5,'Value');
+    io.chal4_no=get(handles.popupmenu6,'Value');
+    io.chal1_name=get(handles.edit4,'String');
+    io.chal2_name=get(handles.edit5,'String');
+    io.chal3_name=get(handles.edit6,'String');
+    io.chal4_name=get(handles.edit7,'String');
+    io.savetiff=get(handles.checkbox1,'Value');
+    io.dataorder=get(handles.popupmenu1,'Value');
+    
+    % find p.mat in [function] folder
+    rootfolder = pwd;
+    savefolder = [rootfolder '/[functions]/io.mat'];
+    if ispc ==1
+        savefolder(findstr(savefolder, '/'))='\';
+    end
+    if exist(savefolder,'file')~=0
+        save(savefolder,'io','-append');
+    end
+    
+    % update all p.io using new parameters in data folders
+    if exist('data_folder','var')~=0
+    for i=1:size(data_folder,2)
+            d_fol = data_folder{i};
+            if ispc ==1
+                d_fol(findstr(d_fol, '/'))='\';
+            end       
+        if exist([d_fol 'p.mat'],'file')~=0
+            load([d_fol 'p.mat']);
+
+            p.io.totchan=get(handles.popupmenu2,'Value');
+            p.io.chal1_show=get(handles.checkbox2,'Value');
+            p.io.chal2_show=get(handles.checkbox3,'Value');
+            p.io.chal3_show=get(handles.checkbox4,'Value');
+            p.io.chal4_show=get(handles.checkbox5,'Value');
+            p.io.chal1_no=get(handles.popupmenu3,'Value');
+            p.io.chal2_no=get(handles.popupmenu4,'Value');
+            p.io.chal3_no=get(handles.popupmenu5,'Value');
+            p.io.chal4_no=get(handles.popupmenu6,'Value');
+            p.io.chal1_name=get(handles.edit4,'String');
+            p.io.chal2_name=get(handles.edit5,'String');
+            p.io.chal3_name=get(handles.edit6,'String');
+            p.io.chal4_name=get(handles.edit7,'String');
+            p.io.savetiff=get(handles.checkbox1,'Value');
+            p.io.dataorder=get(handles.popupmenu1,'Value');
+
+            for c=1:p.io.totchan
+                eval(['chal_info{c,1} = p.io.chal' num2str(c) '_show;']);
+                chal_info{c,2} = 0;
+                eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
+                eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,3} = ''Nuclei'';end']);
+                eval(['if p.io.chal' num2str(c) '_no ==2;chal_info{c,3} = ''Signal 1'';end']);
+                eval(['if p.io.chal' num2str(c) '_no ==3;chal_info{c,3} = ''Signal 2'';end']);
+                eval(['if p.io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
+                eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
+                eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
+                eval(['if strcmp(p.io.chal' num2str(c) '_name,'''') ~=1;chal_info{c,3} = p.io.chal' num2str(c) '_name;end']);              
+            end
+
+            % find p.mat in [function] folder
+            if exist([d_fol 'p.mat'],'file')~=0
+                save([d_fol 'p.mat'],'p','chal_info','-append');
+            end
+        end  
+    end
+    end
+else
+    d_fol = data_folder{now_image};
+    if ispc ==1
+        d_fol(findstr(d_fol, '/'))='\';
+    end
+    load([d_fol 'p.mat']);
+    
+    p.io.totchan=get(handles.popupmenu2,'Value');
+    p.io.chal1_show=get(handles.checkbox2,'Value');
+    p.io.chal2_show=get(handles.checkbox3,'Value');
+    p.io.chal3_show=get(handles.checkbox4,'Value');
+    p.io.chal4_show=get(handles.checkbox5,'Value');
+    p.io.chal1_no=get(handles.popupmenu3,'Value');
+    p.io.chal2_no=get(handles.popupmenu4,'Value');
+    p.io.chal3_no=get(handles.popupmenu5,'Value');
+    p.io.chal4_no=get(handles.popupmenu6,'Value');
+    p.io.chal1_name=get(handles.edit4,'String');
+    p.io.chal2_name=get(handles.edit5,'String');
+    p.io.chal3_name=get(handles.edit6,'String');
+    p.io.chal4_name=get(handles.edit7,'String');
+    p.io.savetiff=get(handles.checkbox1,'Value');
+    p.io.dataorder=get(handles.popupmenu1,'Value');
+    
+    for c=1:p.io.totchan
+        eval(['chal_info{c,1} = p.io.chal' num2str(c) '_show;']);
+        chal_info{c,2} = 0;
+        eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
+        eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,3} = ''Nuclei'';end']);
+        eval(['if p.io.chal' num2str(c) '_no ==2;chal_info{c,3} = ''Signal 1'';end']);
+        eval(['if p.io.chal' num2str(c) '_no ==3;chal_info{c,3} = ''Signal 2'';end']);
+        eval(['if p.io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
+        eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
+        eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
+        eval(['if strcmp(p.io.chal' num2str(c) '_name,'''') ~=1;chal_info{c,3} = p.io.chal' num2str(c) '_name;end']);              
+    end
+      
+    % find p.mat in [function] folder
+    if exist([d_fol 'p.mat'],'file')~=0
+        save([d_fol 'p.mat'],'p','chal_info','-append');
+    end
+    
+end
+
+
+% Hint: delete(hObject) closes the figure
+delete(hObject);
+end
+
 function popupmenu2_Callback(hObject, eventdata, handles)
 % hObject    handle to popupmenu2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -118,6 +352,7 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu2
+
 N=get(handles.popupmenu2,'Value');
 if N==1
     set(handles.popupmenu3,'Visible','On');
@@ -189,163 +424,13 @@ elseif N==4
     set(handles.edit6,'Visible','On');
     set(handles.edit7,'Visible','On');
 end
+% Update handles structure
+guidata(hObject, handles);
 
-end
-
-% --- Executes when user attempts to close figure1.
-function figure1_CloseRequestFcn(hObject, eventdata, handles)
-% hObject    handle to figure1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% find p.mat in [function] folder
-rootfolder = pwd;
-savefolder = [rootfolder '/[functions]/io.mat'];
-if ispc ==1
-    savefolder(findstr(savefolder, '/'))='\';
-end
-load(savefolder);
-
-
-% Hint: delete(hObject) closes the figure
-if now_image ==0
-    io.totchan=get(handles.popupmenu2,'Value');
-    io.chal1_show=get(handles.checkbox2,'Value');
-    io.chal2_show=get(handles.checkbox3,'Value');
-    io.chal3_show=get(handles.checkbox4,'Value');
-    io.chal4_show=get(handles.checkbox5,'Value');
-    io.chal1_no=get(handles.popupmenu3,'Value');
-    io.chal2_no=get(handles.popupmenu4,'Value');
-    io.chal3_no=get(handles.popupmenu5,'Value');
-    io.chal4_no=get(handles.popupmenu6,'Value');
-    io.chal1_name=get(handles.edit4,'String');
-    io.chal2_name=get(handles.edit5,'String');
-    io.chal3_name=get(handles.edit6,'String');
-    io.chal4_name=get(handles.edit7,'String');
-    io.savetiff=get(handles.checkbox1,'Value');
-    io.dataorder=get(handles.popupmenu1,'Value');
-    
-    % find p.mat in [function] folder
-    rootfolder = pwd;
-    savefolder = [rootfolder '/[functions]/io.mat'];
-    if ispc ==1
-        savefolder(findstr(savefolder, '/'))='\';
-    end
-    if exist(savefolder,'file')~=0
-        save(savefolder,'io','-append');
-    end
-    
-    % update all p.io using new parameters in data folders
-    for i=1:size(data_folder,2)
-            d_fol = data_folder{i};
-            if ispc ==1
-                d_fol(findstr(d_fol, '/'))='\';
-            end       
-        if exist([d_fol 'p.mat'],'file')~=0
-            load([d_fol 'p.mat']);
-
-            p.io.totchan=get(handles.popupmenu2,'Value');
-            p.io.chal1_show=get(handles.checkbox2,'Value');
-            p.io.chal2_show=get(handles.checkbox3,'Value');
-            p.io.chal3_show=get(handles.checkbox4,'Value');
-            p.io.chal4_show=get(handles.checkbox5,'Value');
-            p.io.chal1_no=get(handles.popupmenu3,'Value');
-            p.io.chal2_no=get(handles.popupmenu4,'Value');
-            p.io.chal3_no=get(handles.popupmenu5,'Value');
-            p.io.chal4_no=get(handles.popupmenu6,'Value');
-            p.io.chal1_name=get(handles.edit4,'String');
-            p.io.chal2_name=get(handles.edit5,'String');
-            p.io.chal3_name=get(handles.edit6,'String');
-            p.io.chal4_name=get(handles.edit7,'String');
-            p.io.savetiff=get(handles.checkbox1,'Value');
-            p.io.dataorder=get(handles.popupmenu1,'Value');
-
-            for c=1:p.io.totchan
-                eval(['chal_info{c,1} = p.io.chal' num2str(c) '_show;']);
-                chal_info{c,2} = 0;
-                eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
-                eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,3} = ''Nuclei'';end']);
-                eval(['if p.io.chal' num2str(c) '_no ==2;chal_info{c,3} = ''Signal 1'';end']);
-                eval(['if p.io.chal' num2str(c) '_no ==3;chal_info{c,3} = ''Signal 2'';end']);
-                eval(['if p.io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
-                eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
-                eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
-                eval(['if strcmp(p.io.chal' num2str(c) '_name,'''') ~=1;chal_info{c,3} = p.io.chal' num2str(c) '_name;end']);              
-            end
-
-            % find p.mat in [function] folder
-            if exist([d_fol 'p.mat'],'file')~=0
-                save([d_fol 'p.mat'],'p','chal_info','-append');
-            end
-        end  
-    end
-else
-    d_fol = data_folder{now_image};
-    if ispc ==1
-        d_fol(findstr(d_fol, '/'))='\';
-    end
-    load([d_fol 'p.mat']);
-    
-    p.io.totchan=get(handles.popupmenu2,'Value');
-    p.io.chal1_show=get(handles.checkbox2,'Value');
-    p.io.chal2_show=get(handles.checkbox3,'Value');
-    p.io.chal3_show=get(handles.checkbox4,'Value');
-    p.io.chal4_show=get(handles.checkbox5,'Value');
-    p.io.chal1_no=get(handles.popupmenu3,'Value');
-    p.io.chal2_no=get(handles.popupmenu4,'Value');
-    p.io.chal3_no=get(handles.popupmenu5,'Value');
-    p.io.chal4_no=get(handles.popupmenu6,'Value');
-    p.io.chal1_name=get(handles.edit4,'String');
-    p.io.chal2_name=get(handles.edit5,'String');
-    p.io.chal3_name=get(handles.edit6,'String');
-    p.io.chal4_name=get(handles.edit7,'String');
-    p.io.savetiff=get(handles.checkbox1,'Value');
-    p.io.dataorder=get(handles.popupmenu1,'Value');
-    
-    for c=1:p.io.totchan
-        eval(['chal_info{c,1} = p.io.chal' num2str(c) '_show;']);
-        chal_info{c,2} = 0;
-        eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
-        eval(['if p.io.chal' num2str(c) '_no ==1;chal_info{c,3} = ''Nuclei'';end']);
-        eval(['if p.io.chal' num2str(c) '_no ==2;chal_info{c,3} = ''Signal 1'';end']);
-        eval(['if p.io.chal' num2str(c) '_no ==3;chal_info{c,3} = ''Signal 2'';end']);
-        eval(['if p.io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
-        eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
-        eval(['if p.io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
-        eval(['if strcmp(p.io.chal' num2str(c) '_name,'''') ~=1;chal_info{c,3} = p.io.chal' num2str(c) '_name;end']);              
-    end
-    
-    % find p.mat in [function] folder
-    if exist([d_fol 'p.mat'],'file')~=0
-        save([d_fol 'p.mat'],'p','chal_info','-append');
-    end
-    
-end
-
-% Hint: delete(hObject) closes the figure
-delete(hObject);
 end
 
 
 % ----------------------------------------------------------------
-
-% --- Executes just before main_setting is made visible.
-function main_setting_OpeningFcn(hObject, eventdata, handles, varargin)
-% This function has no output args, see OutputFcn.
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to main_setting (see VARARGIN)
-
-% Choose default command line output for main_setting
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-% UIWAIT makes main_setting wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-end
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu2_CreateFcn(hObject, eventdata, handles)

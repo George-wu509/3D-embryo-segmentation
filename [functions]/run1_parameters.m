@@ -112,8 +112,11 @@ savefolder = [rootfolder '/[functions]/io.mat'];
 if ispc ==1
     savefolder(findstr(savefolder, '/'))='\';
 end
-load(savefolder);
-
+if exist(savefolder,'file')~=0
+    load(savefolder);
+else
+    exit;
+end
 
 % Hint: delete(hObject) closes the figure
 if now_image ==0
