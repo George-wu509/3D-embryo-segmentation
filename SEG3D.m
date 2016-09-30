@@ -102,13 +102,14 @@ now_image = 0;
 save(savefolder,'io','now_image');
 
 
-load_tif_lsm(hObject,handles,p,io);
-
-set(handles.pushbutton2,'enable','on');
-set(handles.pushbutton12,'enable','on');
-set(handles.pushbutton13,'enable','on');
-set(handles.pushbutton14,'enable','on');
-set(handles.pushbutton4,'enable','on');
+imagename=load_tif_lsm(hObject,handles,p,io);
+if imagename{1}~=0
+    set(handles.pushbutton2,'enable','on');
+    set(handles.pushbutton12,'enable','on');
+    set(handles.pushbutton13,'enable','on');
+    set(handles.pushbutton14,'enable','on');
+    set(handles.pushbutton4,'enable','on');
+end
 % Update handles
 guidata(hObject, handles);
 end
@@ -128,13 +129,14 @@ now_image = 0;
 save(savefolder,'io','now_image');
 
 
-load_tif_lsm_folder(hObject,handles,p,io);
-
-set(handles.pushbutton2,'enable','on');
-set(handles.pushbutton12,'enable','on');
-set(handles.pushbutton13,'enable','on');
-set(handles.pushbutton14,'enable','on');
-set(handles.pushbutton4,'enable','on');
+image_folder=load_tif_lsm_folder(hObject,handles,p,io);
+if image_folder~=0
+    set(handles.pushbutton2,'enable','on');
+    set(handles.pushbutton12,'enable','on');
+    set(handles.pushbutton13,'enable','on');
+    set(handles.pushbutton14,'enable','on');
+    set(handles.pushbutton4,'enable','on');
+end
 % Update handles
 guidata(hObject, handles);
 end
@@ -197,6 +199,17 @@ set(handles.pushbutton23,'enable','on');
 guidata(hObject, handles);
 end
 
+% --- Raw image GUI
+function pushbutton4_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%% data folder and image format
+
+set(handles.edit1,'String','Loading Raw_image ...');pause(0.1);
+guidata(hObject, handles);
+Raw_image;
+end
 
 
 % =========================================================
@@ -302,7 +315,7 @@ end
 end
 
 % --- Executes on button press in pushbutton4.
-function pushbutton4_Callback(hObject, eventdata, handles)
+function pushbutton14_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -343,12 +356,6 @@ function pushbutton22_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 end
 
-% --- Executes on button press in pushbutton14.
-function pushbutton14_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton14 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
 
 % ================================================================
 
@@ -387,12 +394,12 @@ function [p,io]=p_setting()
 %io.segindex = 2;      % 2 segindex= the channel to be used to ID maxima
 %io.intindex = 1;      % 1 intindex= the experimental channel to be measured
 io.savetiff = 1;      % save all tif files to folder
-io.totchan = 3;       % 2
+io.totchan = 2;       % 2
 io.dataorder = 1;     % =1: chal1(1,4,7,10), =2: chal1(1,2,3,4)
 
 io.chal1_show = 1;    % Show Channel 1 measurement = 0(no show) or 1(show)
-io.chal2_show = 0;
-io.chal3_show = 1;
+io.chal2_show = 1;
+io.chal3_show = 0;
 io.chal4_show = 0;
 io.chal1_no = 1;      % Channel 1 name = {1,2,3,4,5} = {'Nuclei','signal1','signal2','signal3','none'}
 io.chal2_no = 2;
@@ -465,7 +472,7 @@ p.avre_numper = 0.2;
 end
 
 % Main functions
-function load_tif_lsm(hObject,handles,p,io)
+function imagename=load_tif_lsm(hObject,handles,p,io)
 % Load tiff and lsm image files and convert into stack, save into stack.mat and convert into tiff files
 
 
@@ -474,6 +481,8 @@ set(handles.edit1,'String','Loading Images ...');pause(0.1);
 guidata(hObject, handles);
 imagename{1}=uigetfile({'*.tif;*.lsm','Image Files (*.tif,*.lsm)'});
 if imagename{1}==0
+    set(handles.edit1,'String','');pause(0.1);
+    guidata(hObject, handles);
     return;
 end
 
@@ -551,7 +560,7 @@ save([data_folder{1} 'p.mat'],'p','iinfo','chal_info');
 
 %% Save tiff files
 if io.savetiff==1
-    if exist([data_folder{1} 'tiff_image.tif'],'file')==1
+    if exist([data_folder{1} 'tiff_image.tif'],'file')~=0
         delete([data_folder{1} 'tiff_image.tif']);
     end    
     for chal=1:io.totchan
@@ -567,7 +576,7 @@ set(handles.edit1,'String','Finished!');
 guidata(hObject, handles);
 
 end
-function load_tif_lsm_folder(hObject,handles,p,io)
+function image_folder=load_tif_lsm_folder(hObject,handles,p,io)
 % Load tiff and lsm image files and convert into stack, save into stack.mat and convert into tiff files
 
 
@@ -577,6 +586,8 @@ guidata(hObject, handles);
 rootfolder = pwd;
 image_folder=uigetdir(rootfolder);
 if image_folder==0
+    set(handles.edit1,'String','');pause(0.1);
+    guidata(hObject, handles);
     return;
 end    
 image_folder1 = [image_folder '/*.tif'];
@@ -697,7 +708,7 @@ for i=1:size(basename,2)
 
 %% Save tiff files
     if io.savetiff==1
-        if exist([data_folder{i} 'tiff_image.tif'],'file')==1
+        if exist([data_folder{i} 'tiff_image.tif'],'file')~=0
             delete([data_folder{i} 'tiff_image.tif']);
         end
         for chal=1:io.totchan
@@ -732,14 +743,14 @@ for i=1:size(imagename,2)
     save(savefolder,'now_image','-append');
     load([data_folder{i} 'stack.mat']);load([data_folder{i} 'p.mat']);
 
-    xyzintsegdat=seg_auto(hObject, handles, NFstk, p, iinfo, basename{i},chal_info); %% identify nuclei centerpoints and extract nuclear intensities
+    [xyzintsegdat,coloroverlay]=seg_auto(hObject, handles, NFstk, p, iinfo, basename{i},chal_info); %% identify nuclei centerpoints and extract nuclear intensities
     for j=1:size(xyzintsegdat,2)
         if isempty(xyzintsegdat{j})~=1
             NFstk_xyz{j} = plotnieghbors(xyzintsegdat{j}, p.id_r, p.id_distniegh, p.id_PHHcutoff, p.id_divcut);  %% eliminates dividing cells
         end
     end
     % Finish process
-    save([data_folder{i} 'stack.mat'],'xyzintsegdat','NFstk_xyz','-append');
+    save([data_folder{i} 'stack.mat'],'xyzintsegdat','NFstk_xyz','coloroverlay','-append');
     
     if p.id_removeYSL==1
         [xyzintsegdat_noYSL] = removeYSL(xyzintsegdat);
@@ -1019,7 +1030,7 @@ ls=6;
 end
 
 %step 1 sub functions
-function xyzintsegdat=seg_auto(hObject, handles, stack, p, iinfo, basename,chal_info)
+function [xyzintsegdat,coloroverlay]=seg_auto(hObject, handles, stack, p, iinfo, basename,chal_info)
 %{
 % 1. imports a tiff confocal stack with 2 channels [importstackone()]
 % 2. smooths nuclei labeled image in 3-D [smooth3D()]
