@@ -22,7 +22,7 @@ function varargout = main_setting(varargin)
 
 % Edit the above text to modify the response to help main_setting
 
-% Last Modified by GUIDE v2.5 28-Sep-2016 14:45:59
+% Last Modified by GUIDE v2.5 30-Sep-2016 16:00:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -612,4 +612,3 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 end
-
