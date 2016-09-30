@@ -44,7 +44,6 @@ end
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before SEG3D is made visible.
 function SEG3D_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -65,7 +64,8 @@ if ispc ==1
     savefolder(findstr(savefolder, '/'))='\';
 end
 now_image = 0;
-save([savefolder 'io.mat'],'io','now_image','p');
+io.p=p;
+save([savefolder 'io.mat'],'io','now_image');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -92,13 +92,13 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 rootfolder = pwd;
-clc
-[p,io]=p_setting();
+[p]=p_setting();
 savefolder = [rootfolder '/[functions]/io.mat'];
 if ispc ==1
     savefolder(findstr(savefolder, '/'))='\';
 end
-now_image = 0;
+load(savefolder);
+now_image = 0;io.p=p;
 save(savefolder,'io','now_image');
 
 
@@ -120,12 +120,13 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 rootfolder = pwd;
-[p,io]=p_setting();
+[p]=p_setting();
 savefolder = [rootfolder '/[functions]/io.mat'];
 if ispc ==1
     savefolder(findstr(savefolder, '/'))='\';
 end
-now_image = 0;
+load(savefolder);
+now_image = 0;io.p=p;
 save(savefolder,'io','now_image');
 
 
@@ -147,7 +148,66 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-main_setting;
+main_setting();
+
+%{
+%% convert image into multi-stack and save stack.mat and p.mat
+% load p.mat
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+for i=1:size(basename,2)
+    
+    % convert image into multi-stack
+    load([data_folder{i} 'stack.mat']);load([data_folder{i} 'p.mat']);
+    
+    % Create channel info
+    for c=1:io.totchan
+        eval(['chal_info{c,1} = io.chal' num2str(c) '_show;']);
+        chal_info{c,2} = 0;
+        eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
+        eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,3} = ''Nuclei'';end']);
+        eval(['if io.chal' num2str(c) '_no ==2;chal_info{c,3} = ''Signal 1'';end']);
+        eval(['if io.chal' num2str(c) '_no ==3;chal_info{c,3} = ''Signal 2'';end']);
+        eval(['if io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
+        eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
+        eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
+        eval(['if strcmp(io.chal' num2str(c) '_name,'''')~=1;chal_info{c,3} = io.chal' num2str(c) '_name;end']);
+    end
+
+    % export to stack
+    endim=iinfo.pageN/io.totchan;
+    for chal=1:io.totchan
+        startim=chal;j=1;
+        for t=startim:io.totchan:startim+(endim-1)*io.totchan
+            NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
+            j=j+1;
+        end;
+    end
+    p.io=io;
+    save([data_folder{i} 'stack.mat'],'lsm_stack','NFstk','-v7.3');
+    save([data_folder{i} 'p.mat'],'p','iinfo','chal_info');
+
+
+%% Save tiff files
+    if io.savetiff==1
+        if exist([data_folder{i} 'tiff_image.tif'],'file')~=0
+            delete([data_folder{i} 'tiff_image.tif']);
+        end
+        for chal=1:io.totchan
+            for m=1:size(NFstk{chal},3)
+                imwrite(NFstk{chal}(:,:,m),[data_folder{i} 'tiff_image.tif'], 'writemode', 'append');
+            end
+        end
+    end
+clear NFstk iinfo chal_info
+end
+%}
+
 %{
 rootfolder = pwd;
 p=p_setting();
@@ -522,7 +582,7 @@ catch
         lsm_stack = readlsm(imagename{1});     
     end
 end
-lsm_stack=lsm_stack(1,1:120);    %[test_code]George
+lsm_stack=lsm_stack(1,1:20);    %[test_code]George
 
 % image information
 iinfo.Width = lsm_stack(1).width;
@@ -541,7 +601,7 @@ for c=1:io.totchan
     eval(['if io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
     eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
     eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
-    eval(['if io.chal' num2str(c) '_name ~='''';chal_info{c,3} = io.chal' num2str(c) '_name;end']);              
+    eval(['if strcmp(io.chal' num2str(c) '_name,'''')~=1;chal_info{c,3} = io.chal' num2str(c) '_name;end']);
 end
 
 % export to stack
@@ -670,7 +730,7 @@ for i=1:size(basename,2)
             lsm_stack = readlsm(imagename{i});     
         end
     end
-    lsm_stack=lsm_stack(1,1:120);    %[test_code]George
+    lsm_stack=lsm_stack(1,1:20);    %[test_code]George
     
     % image information
     iinfo.Width = lsm_stack(1).width;
@@ -689,7 +749,7 @@ for i=1:size(basename,2)
         eval(['if io.chal' num2str(c) '_no ==4;chal_info{c,3} = ''Signal 3'';end']);
         eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,3} = ''none'';end']);
         eval(['if io.chal' num2str(c) '_no ==5;chal_info{c,2} = -1;end']);
-        eval(['if io.chal' num2str(c) '_name ~='''';chal_info{c,3} = io.chal' num2str(c) '_name;end']);              
+        eval(['if strcmp(io.chal' num2str(c) '_name,'''')~=1;chal_info{c,3} = io.chal' num2str(c) '_name;end']);
     end
 
     % export to stack
@@ -702,7 +762,7 @@ for i=1:size(basename,2)
         end;
     end
     p.io=io;
-    save([data_folder{i} 'stack.mat'],'NFstk','-v7.3');
+    save([data_folder{i} 'stack.mat'],'lsm_stack','NFstk','-v7.3');
     save([data_folder{i} 'p.mat'],'p','iinfo','chal_info');
 
 
@@ -735,6 +795,9 @@ guidata(hObject, handles);
 % load io.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
 load(savefolder);
 
 for i=1:size(imagename,2)
