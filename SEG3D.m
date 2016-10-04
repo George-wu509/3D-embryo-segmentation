@@ -235,9 +235,9 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % load p.mat
 step1_nuclearidentification(hObject, handles);
 
-%set(handles.pushbutton16,'enable','on');
-%set(handles.pushbutton19,'enable','on');
-%set(handles.pushbutton22,'enable','on');
+set(handles.pushbutton16,'enable','on');
+set(handles.pushbutton19,'enable','on');
+set(handles.pushbutton22,'enable','on');
 set(handles.pushbutton13,'enable','on');
 set(handles.pushbutton14,'enable','on');
 % Update handles
@@ -255,6 +255,20 @@ step3_alignment(hObject, handles);
 set(handles.pushbutton17,'enable','on');
 set(handles.pushbutton20,'enable','on');
 set(handles.pushbutton23,'enable','on');
+% Update handles
+guidata(hObject, handles);
+end
+
+% --- step 4: RUN profiel extraction
+function pushbutton17_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+set(handles.pushbutton18,'enable','on');
+set(handles.pushbutton21,'enable','on');
+set(handles.pushbutton24,'enable','on');
 % Update handles
 guidata(hObject, handles);
 end
@@ -291,13 +305,6 @@ end
 % --- Executes on button press in pushbutton24.
 function pushbutton24_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton24 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-end
-
-% --- Executes on button press in pushbutton17.
-function pushbutton17_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton17 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 end
@@ -582,13 +589,18 @@ catch
         lsm_stack = readlsm(imagename{1});     
     end
 end
-lsm_stack=lsm_stack(1,1:20);    %[test_code]George
+%lsm_stack=lsm_stack(1,1:20);    %[test_code]George
 
 % image information
 iinfo.Width = lsm_stack(1).width;
 iinfo.Height = lsm_stack(1).height;
 iinfo.BitDepth = lsm_stack(1).bits;
-iinfo.pageN = size(lsm_stack,2);
+iinfo.chalN = size(imread(imagename{1}),3);
+if iscell(lsm_stack(1).data)==1
+    iinfo.pageN = size(lsm_stack,2);
+else
+    iinfo.pageN = size(lsm_stack,2)/iinfo.chalN;
+end
 
 % Create channel info
 for c=1:io.totchan
@@ -605,14 +617,50 @@ for c=1:io.totchan
 end
 
 % export to stack
-endim=iinfo.pageN/io.totchan;
-for chal=1:io.totchan
-    startim=chal;j=1;
-    for t=startim:io.totchan:startim+(endim-1)*io.totchan
-        NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
-        j=j+1;
-    end;
+if iscell(lsm_stack(1).data)==1     % lsm image (lsm_stack.data is cell{1xN})
+    
+    if io.totchan == iinfo.chalN
+        for chal=1:io.totchan
+            startim=chal;j=1;
+            for t=1:iinfo.pageN
+                NFstk{chal}(:,:,j)=lsm_stack(1,t).data{1,chal};
+                j=j+1;
+            end;
+        end
+    else
+        display('chal total number not match');
+        for chal=1:iinfo.chalN
+            startim=chal;j=1;
+            for t=1:iinfo.pageN
+                NFstk{chal}(:,:,j)=lsm_stack(1,t).data{1,chal};
+                j=j+1;
+            end;
+        end
+    end
+    
+else                                 % tiff image (lsm_stack.data not cell)
+    
+    if io.totchan == iinfo.chalN
+        for chal=1:io.totchan
+            startim=chal;j=1;
+            for t=startim:io.totchan:startim+(iinfo.pageN-1)*io.totchan
+                NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
+                j=j+1;
+            end;
+        end
+    else
+        display('chal total number not match');
+        for chal=1:iinfo.chalN
+            startim=chal;j=1;
+            for t=startim:iinfo.chalN:startim+(iinfo.pageN-1)*iinfo.chalN
+                NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
+                j=j+1;
+            end;
+        end
+    end
+    
 end
+
 p.io=io;
 save([data_folder{1} 'stack.mat'],'NFstk','-v7.3');
 save([data_folder{1} 'p.mat'],'p','iinfo','chal_info');
@@ -730,13 +778,18 @@ for i=1:size(basename,2)
             lsm_stack = readlsm(imagename{i});     
         end
     end
-    lsm_stack=lsm_stack(1,1:20);    %[test_code]George
+    %lsm_stack=lsm_stack(1,1:20);    %[test_code]George
     
     % image information
     iinfo.Width = lsm_stack(1).width;
     iinfo.Height = lsm_stack(1).height;
     iinfo.BitDepth = lsm_stack(1).bits;
-    iinfo.pageN = size(lsm_stack,2);
+    iinfo.chalN = size(imread(imagename{i}),3);
+    if iscell(lsm_stack(1).data)==1
+        iinfo.pageN = size(lsm_stack,2);
+    else
+        iinfo.pageN = size(lsm_stack,2)/iinfo.chalN;
+    end
     
     % Create channel info
     for c=1:io.totchan
@@ -753,14 +806,50 @@ for i=1:size(basename,2)
     end
 
     % export to stack
-    endim=iinfo.pageN/io.totchan;
-    for chal=1:io.totchan
-        startim=chal;j=1;
-        for t=startim:io.totchan:startim+(endim-1)*io.totchan
-            NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
-            j=j+1;
-        end;
+    if iscell(lsm_stack(1).data)==1     % lsm image (lsm_stack.data is cell{1xN})
+
+        if io.totchan == iinfo.chalN
+            for chal=1:io.totchan
+                startim=chal;j=1;
+                for t=1:iinfo.pageN
+                    NFstk{chal}(:,:,j)=lsm_stack(1,t).data{1,chal};
+                    j=j+1;
+                end;
+            end
+        else
+            display('chal total number not match');
+            for chal=1:iinfo.chalN
+                startim=chal;j=1;
+                for t=1:iinfo.pageN
+                    NFstk{chal}(:,:,j)=lsm_stack(1,t).data{1,chal};
+                    j=j+1;
+                end;
+            end
+        end
+
+    else                                 % tiff image (lsm_stack.data not cell)
+
+        if io.totchan == iinfo.chalN
+            for chal=1:io.totchan
+                startim=chal;j=1;
+                for t=startim:io.totchan:startim+(iinfo.pageN-1)*io.totchan
+                    NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
+                    j=j+1;
+                end;
+            end
+        else
+            display('chal total number not match');
+            for chal=1:iinfo.chalN
+                startim=chal;j=1;
+                for t=startim:iinfo.chalN:startim+(iinfo.pageN-1)*iinfo.chalN
+                    NFstk{chal}(:,:,j)=lsm_stack(1,t).data;
+                    j=j+1;
+                end;
+            end
+        end
+
     end
+        
     p.io=io;
     save([data_folder{i} 'stack.mat'],'lsm_stack','NFstk','-v7.3');
     save([data_folder{i} 'p.mat'],'p','iinfo','chal_info');
