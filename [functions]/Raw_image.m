@@ -113,7 +113,7 @@ imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
 
 %% show axes2
-if exist('handles.coloroverlay','var')~=0
+if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(coloroverlay(:,:,1:3));colorbar;
@@ -185,7 +185,7 @@ set(handles.axes1,'Units','normalized');
 
 
 %% show axes2
-if exist('handles.coloroverlay','var')~=0
+if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
@@ -235,7 +235,7 @@ set(handles.axes1,'Units','normalized');
 
 
 %% show axes2
-if exist('handles.coloroverlay','var')~=0
+if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
@@ -280,7 +280,7 @@ set(handles.axes1,'Units','normalized');
 
 
 %% show axes2
-if exist('handles.coloroverlay','var')~=0
+if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
@@ -326,7 +326,7 @@ set(handles.axes1,'Units','normalized');
 
 
 %% show axes2
-if exist('handles.coloroverlay','var')~=0
+if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
@@ -368,7 +368,7 @@ set(handles.axes1,'Units','normalized');
 
 
 %% show axes2
-if exist('handles.coloroverlay','var')~=0
+if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
@@ -424,7 +424,7 @@ set(handles.axes1,'Units','normalized');
 
 
 %% show axes2
-if exist('handles.coloroverlay','var')~=0
+if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
@@ -449,16 +449,6 @@ function varargout = Raw_image_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-end
-
-% --- Executes on selection change in popupmenu1.
-function popupmenu1_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu1
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -525,12 +515,3 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 end
 
-
-% --- Executes on button press in checkbox1.
-function checkbox1_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox1
-end
