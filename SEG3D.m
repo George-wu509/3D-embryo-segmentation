@@ -589,7 +589,7 @@ catch
         lsm_stack = readlsm(imagename{1});     
     end
 end
-%lsm_stack=lsm_stack(1,1:20);    %[test_code]George
+lsm_stack=lsm_stack(1,1:60);    %[test_code]George
 
 % image information
 iinfo.Width = lsm_stack(1).width;
@@ -778,7 +778,7 @@ for i=1:size(basename,2)
             lsm_stack = readlsm(imagename{i});     
         end
     end
-    %lsm_stack=lsm_stack(1,1:20);    %[test_code]George
+    lsm_stack=lsm_stack(1,1:60);    %[test_code]George
     
     % image information
     iinfo.Width = lsm_stack(1).width;
@@ -891,6 +891,10 @@ load(savefolder);
 
 for i=1:size(imagename,2)
     
+    eval(['set(handles.edit1,''String'',''Run step1 [' num2str(i) '/' num2str(size(imagename,2)) '] ...'');']);
+    pause(0.1);
+    guidata(hObject, handles);
+    
     now_image = i;
     save(savefolder,'now_image','-append');
     load([data_folder{i} 'stack.mat']);load([data_folder{i} 'p.mat']);
@@ -911,7 +915,7 @@ for i=1:size(imagename,2)
     end
 end
 
-set(handles.edit1,'String','RUN1 Finished!');
+set(handles.edit1,'String','RUN1 Finished!');pause(0.1);
 guidata(hObject, handles);
 
 end
@@ -1529,27 +1533,17 @@ imstksm=imfilter(imstk,h);   %filers in 3-D
 end
 function [maximaintclean, fragall, fragconc, coloroverlay]=maxima3D(smoothdapi, p,iinfo)
 %outputs maximas from a 3-D matlab image
-
-noisemin=p.id_noisemin;
-noisemax=p.id_noisemax;
-dist=p.id_dist;
-showimage=p.id_showimage;
-saveim=p.id_saveim;
-x1=p.id_x1;
-y1=p.id_y1;
-z1=p.id_z1;
-
-%%%the main output:
+%the main OUTPUT:
 %maximaintclean= a matrix output of the maxima coordinates in
 %[x1,y1;xy,y2;,x3,y3;...] format
-
-%%%other outputs (not used except for troubleshooting)
+%
+%other outputs (not used except for troubleshooting)
 %fragall=all of the maxima that were closer together than 'dist'
 %fragconc=the maxima after they are combined into a single averaged point
 %coloroverlay: 2D slices showing the gaussian smoothed images with
 %centerpoints highlighted in purple
-
-%%%inputs:
+%
+% INPUT
 %smoothdapi=stack of greyscale images  (x by y by z array)
 %noisemax=maxima below this threshhold will be flattenned (imhmax()) (usually 10)
 %noisemin=minima less than this value are eliminated using (imhmin()) (usually 10)
@@ -1560,12 +1554,22 @@ z1=p.id_z1;
 %note: z1 has been locked at 1
 
 
+%% load parameters
+noisemin=p.id_noisemin;
+noisemax=p.id_noisemax;
+dist=p.id_dist;
+showimage=p.id_showimage;
+saveim=p.id_saveim;
+x1=p.id_x1;
+y1=p.id_y1;
+z1=p.id_z1;
 zxyratio=3.2051;          %ratio over distance in z direction per pixel over distance in xy per pixel (3.97 is for 2.2 um z slices)
 fragconc=[];
 fragall=[];
 maximaintclean=[];
 
-%smoothdapi8=uint8(smoothdapi);  %converts image to unsigned 8-bit
+
+%% Convert image 16bit intensity(0-65535) into 0-256
 if max(max(max(smoothdapi)))>500
     smoothdapi8=double(smoothdapi)/65535*256;
 else
@@ -1573,90 +1577,79 @@ else
 end
 
 
-%%%%%%%%%%%%%finds maximas(centroids) and puts the into the format [x1,y1,z1;x2,y2,z2;x3,y3,z3...] 
-%blobmax=imextendedmax(smoothdapi8, noise);
-blobmax=imhmin(smoothdapi8, noisemin);
-blobmax=imhmax(blobmax, noisemax);
-blobmax=imregionalmax(blobmax);
+%% finds maximas(centroids) and puts the into the format [x1,y1,z1;x2,y2,z2;x3,y3,z3...]
+% -- use H-min, H-max and imregionalmax to define possible nuclei
+blobmax=imhmin(smoothdapi8, noisemin);      % Local min + 10
+blobmax=imhmax(blobmax, noisemax);          % Local max -10
+blobmax=imregionalmax(blobmax);             % Find local max
+sharpmax=bwulterode(blobmax);               % Ultimate erosion
 
-sharpmax=bwulterode(blobmax);
+% -- finds middle of each maxima cluster
+maximas=regionprops(sharpmax, 'Centroid');  % maximas: Nx1 struct, call using maximas(1).Centroid = [x,y,z] 
 
-%finds middle of each maxima cluster
-maximas=regionprops(sharpmax, 'Centroid');
-
-%converts structured array to numerical
+% -- converts structured array to numerical
 maximacell=struct2cell(maximas);
 maximamat=cell2mat(maximacell);
-
 maximanum=ctranspose(reshape(maximamat,3,[]));       %turns [x1,y1,x2,y2,x3,y3...]-->[x1,x2,x3;y1,y2,y3...]-->[x1,y1;x2,y2;x3,y3...]   
-maximaint=round(maximanum);                         %'maximaint is a rounded version of maximanum for purposes of points
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% this sections combines maxima that are too
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% close to each other
+maximaint=round(maximanum);                         %'maximaint is a rounded version of maximanum for purposes of points = [x1,y1,z1;x2,y2,z2;x3,y3,z3...]
 
 
-
-%%%%%%%%%%%%%%%%%%% identifies any points closer than 'dist' to each other %%%%%%%%%%%%%%%
-
-for i=1:size(maximanum, 1)                   %loops i from 2 to the bottom of the zview input matrix, marking the row.
+%% This sections combines maxima that are too close to each other
+% -- identifies any points closer than 'dist' to each other
+for i=1:size(maximanum, 1)        % loops i from 2 to the bottom of the zview input matrix, marking the row.
     xvalue=maximanum(i,1);
     yvalue=maximanum(i,2);
     Zvalue=maximanum(i,3);
     
-    testdist= ((maximanum(:,1)- xvalue).^2 + (maximanum(:,2)- yvalue).^2+((maximanum(:,3)- Zvalue).*zxyratio).^2).^.5 ;     %subtracts these values from the entire corresponding zyx columns from the xview 
-    
+    % -- distance from this point to all other points
+    testdist= ((maximanum(:,1)- xvalue).^2 + (maximanum(:,2)- yvalue).^2+((maximanum(:,3)- Zvalue).*zxyratio).^2).^.5 ;     % subtracts these values from the entire corresponding zyx columns from the xview     
     nucrow=[];
     [nucrow, ~]=find(abs(testdist)<dist );          %finds any rows in the incoming column whos xy distance is less than 'dist' away from the point in question
     
-    if numel(nucrow) <= 1                           %records all maxima that did not have any other maxima closer than 'dist'
+    % -- records all maxima that did not have any other maxima closer than 'dist'
+    if numel(nucrow) <= 1                           
         maximaintin=maximaint(i,:);
         maximaintclean=cat(1,maximaintclean,maximaintin);
     end;
     
-    if numel(nucrow) > 1                            %this row records all nuclei that were closer together than dist
+    % -- this row records all nuclei that were closer together than dist
+    if numel(nucrow) > 1                            
         fragin=maximaint(i,:);
         fragall=cat(1,fragall,fragin);
     end;
 end;
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%% combines points identified in previous step as being too close.  averages them and makes a single point
+%% combines points identified in previous step as being too close.  averages them and makes a single point
 if numel(fragall)>0   
     fragsort=sortrows(fragall);
 
     for u=1:size(fragsort,1)
+        testdist2= ((fragsort(:,1)-fragsort(u,1) ).^2 + (fragsort(:,2)-fragsort(u,2)).^2+((fragsort(:,3)-fragsort(u,3)).*zxyratio).^2).^.5 ;     %subtracts these values from the entire corresponding zyx columns from the xview 
+        nucrow2=[];
+        [nucrow2, ~]=find(abs(testdist2)<dist );
 
+        %fragsort(nucrow2, 3)=u;
+        coprow=[];
+        fragconcin=round(cat(2,mean(fragsort(nucrow2,1)), mean(fragsort(nucrow2,2)), mean(fragsort(nucrow2,3))));           %this makes the xy coordinates of any nuclei within the critical distance the average of those nuclei
 
-            testdist2= ((fragsort(:,1)-fragsort(u,1) ).^2 + (fragsort(:,2)-fragsort(u,2)).^2+((fragsort(:,3)-fragsort(u,3)).*zxyratio).^2).^.5 ;     %subtracts these values from the entire corresponding zyx columns from the xview 
-            nucrow2=[];
-            [nucrow2, ~]=find(abs(testdist2)<dist );
-
-            %fragsort(nucrow2, 3)=u;
-
-            coprow=[];
-            fragconcin=round(cat(2,mean(fragsort(nucrow2,1)), mean(fragsort(nucrow2,2)), mean(fragsort(nucrow2,3))));           %this makes the xy coordinates of any nuclei within the critical distance the average of those nuclei
-
-            if u==1                                                                 %this if statement parsaes each member of the list and removes duplicates
+        if u==1                                                                 %this if statement parsaes each member of the list and removes duplicates
             fragconc=cat(1, fragconc, fragconcin);              
-                else
-                    [coprow, ~]=find(fragconc(:,1)==fragconcin(1,1) & fragconc(:,2)==fragconcin(1,2) & fragconc(:,3)==fragconcin(1,3));
-                    if isempty(coprow)==1
-                        fragconc=cat(1, fragconc, fragconcin);
-                    end;
-            end;
-    end;
-end;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        else
+            [coprow, ~]=find(fragconc(:,1)==fragconcin(1,1) & fragconc(:,2)==fragconcin(1,2) & fragconc(:,3)==fragconcin(1,3));
+            if isempty(coprow)==1
+                fragconc=cat(1, fragconc, fragconcin);
+            end
+        end
+    end
+end
 maximaintclean=cat(1,maximaintclean,fragconc);  %adds the combined points into the rest of the set
 
 
-%%%%% optional: Outputs centroids of image onto old image in color%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+%% optional: Outputs centroids of image onto old image in color%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 currentim=uint8(zeros(iinfo.Height, iinfo.Width, size(smoothdapi8, 3)));   %creates new binary cube of all zeros
-
 disksize=round(max(iinfo.Height, iinfo.Width)/1024*4);                 %specifies disk size relative to pixels
-
-
-    
+   
         for z=1:size(maximaintclean, 1)                              %takes image of 0s and makes maximas 255
              currentim(maximaintclean(z,2),maximaintclean(z,1), maximaintclean(z,3))=150;
 
@@ -1695,8 +1688,6 @@ if showimage==1
                 close(figure(round(u/3)+1))
         end;
 end;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 end
