@@ -52,6 +52,10 @@ function SEG3D_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to SEG3D (see VARARGIN)
 
+%% Vision information
+display('  SEG3D v.beta3   made by Geoge. 2016.10.05 11:01am  ');
+
+
 % Choose default command line output for SEG3D
 handles.output = hObject;
 
@@ -589,7 +593,7 @@ catch
         lsm_stack = readlsm(imagename{1});     
     end
 end
-lsm_stack=lsm_stack(1,1:60);    %[test_code]George
+%lsm_stack=lsm_stack(1,1:60);    %[test_code]George
 
 % image information
 iinfo.Width = lsm_stack(1).width;
@@ -671,7 +675,7 @@ if io.savetiff==1
     if exist([data_folder{1} 'tiff_image.tif'],'file')~=0
         delete([data_folder{1} 'tiff_image.tif']);
     end    
-    for chal=1:io.totchan
+    for chal=1:iinfo.chalN
         for m=1:size(NFstk{chal},3)
             imwrite(NFstk{chal}(:,:,m),[data_folder{1} 'tiff_image.tif'], 'writemode', 'append');
         end
@@ -778,7 +782,7 @@ for i=1:size(basename,2)
             lsm_stack = readlsm(imagename{i});     
         end
     end
-    lsm_stack=lsm_stack(1,1:60);    %[test_code]George
+    %lsm_stack=lsm_stack(1,1:60);    %[test_code]George
     
     % image information
     iinfo.Width = lsm_stack(1).width;
