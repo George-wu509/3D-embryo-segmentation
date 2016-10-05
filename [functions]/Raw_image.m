@@ -22,7 +22,7 @@ function varargout = Raw_image(varargin)
 
 % Edit the above text to modify the response to help Raw_image
 
-% Last Modified by GUIDE v2.5 30-Sep-2016 12:12:34
+% Last Modified by GUIDE v2.5 04-Oct-2016 23:53:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -514,4 +514,3 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 end
-
