@@ -118,6 +118,7 @@ if isfield(handles,'coloroverlay') ==1
     axes(handles.axes2);
     imshow(coloroverlay(:,:,1:3));colorbar;
     set(handles.axes2,'Units','normalized');
+    axis on;
 end
 
 
@@ -190,6 +191,7 @@ if isfield(handles,'coloroverlay') ==1
     axes(handles.axes2);
     imshow(coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
     set(handles.axes2,'Units','normalized');
+    axis on;
 end
 
 
@@ -240,6 +242,7 @@ if isfield(handles,'coloroverlay') ==1
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
     set(handles.axes2,'Units','normalized');
+    axis on;
 end
 
 
@@ -285,6 +288,7 @@ if isfield(handles,'coloroverlay') ==1
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
     set(handles.axes2,'Units','normalized');
+    axis on;
 end
 
 
@@ -331,6 +335,7 @@ if isfield(handles,'coloroverlay') ==1
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
     set(handles.axes2,'Units','normalized');
+    axis on;
 end
 
 
@@ -373,6 +378,7 @@ if isfield(handles,'coloroverlay') ==1
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
     set(handles.axes2,'Units','normalized');
+    axis on;
 end
 
 
@@ -429,6 +435,7 @@ if isfield(handles,'coloroverlay') ==1
     axes(handles.axes2);
     imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
     set(handles.axes2,'Units','normalized');
+    axis on;
 end
 
 
