@@ -22,7 +22,7 @@ function varargout = SEG3D(varargin)
 
 % Edit the above text to modify the response to help SEG3D
 
-% Last Modified by GUIDE v2.5 26-Sep-2016 21:14:29
+% Last Modified by GUIDE v2.5 05-Oct-2016 18:56:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -44,6 +44,8 @@ end
 end
 % End initialization code - DO NOT EDIT
 
+
+% ====/ Main GUI functions /=====================================================
 % --- Executes just before SEG3D is made visible.
 function SEG3D_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -53,7 +55,7 @@ function SEG3D_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to SEG3D (see VARARGIN)
 
 %% Vision information
-display('  SEG3D v.beta3   made by Geoge. 2016.10.05 11:01am  ');
+display('  SEG3D v.beta4   made by Geoge. 2016.10.05 11:27pm  ');
 
 
 % Choose default command line output for SEG3D
@@ -239,12 +241,84 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % load p.mat
 step1_nuclearidentification(hObject, handles);
 
+%% active step2 button units
 set(handles.pushbutton16,'enable','on');
 set(handles.pushbutton19,'enable','on');
 set(handles.pushbutton22,'enable','on');
 set(handles.pushbutton13,'enable','on');
 set(handles.pushbutton14,'enable','on');
+
+
+%% active axes1 units
+set(handles.text5,'enable','on');
+set(handles.text6,'enable','on');
+set(handles.edit2,'enable','on');
+set(handles.popupmenu1,'enable','on');
+set(handles.popupmenu3,'enable','on');
+set(handles.checkbox1,'enable','on');
+set(handles.pushbutton25,'enable','on');
+
+
+%% Load io.mat and setup handles.popupmenu1 menu
+% load io.mat
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+% set handles.popupmenu1 String = image names
+for i=1:size(imagename,2)
+    popname{i,1} = imagename{1,i};
+end
+set(handles.popupmenu1,'String',popname);
+
+
+%% load first image information and save handles.popupmenu3
+% load p.mat and stack.mat
+d_fol = data_folder{1};
+s_fol = [d_fol 'stack.mat'];
+d_fol = [d_fol 'p.mat'];
+if ispc ==1
+    d_fol(findstr(d_fol, '/'))='\';
+    s_fol(findstr(s_fol, '/'))='\';
+end
+load(d_fol);load(s_fol);
+
+% figure_show{1,oo} = figure will be shown  
+oo = 1;
+if exist('xyzintsegdat','var')~=0
+    figure_show{1,oo} = '__xyzI';
+    oo=oo+1;
+end
+% [README: if add more options..]
+%if exist('xyzintsegdat','var')~=0 [if add other figures....]
+%    handles.show_axis_opt{oo} = 'xyzintsegdat';
+%    oo=oo+1;
+%end
+
+% chala{1,o1} = chale name will be shown
+data_i = find(cell2mat(chal_info(:,1)));o1=1;
+for oo=1:size(data_i,1)
+    chala{1,oo}=chal_info(data_i(oo),3);
+end
+    
+% create handles.popupmenu3 menu
+if exist('figure_show')~=0&&exist('chala')~=0     
+    for i1 = 1:size(figure_show,2)
+        for i2 = 1:size(chala,2)
+            temp=chala{1,i2};
+            show_axis_opt{i2+(i1-1)*(size(figure_show,2)),1}=[temp{1} figure_show{1,i1}];
+        end
+    end       
+else    
+end
+set(handles.popupmenu3,'String',show_axis_opt);
+
+
 % Update handles
+set(handles.edit1,'String','RUN1 Finished!');pause(0.1);
 guidata(hObject, handles);
 
 end
@@ -290,7 +364,481 @@ Raw_image;
 end
 
 
-% =========================================================
+% ====/ GUI axes1 functions /=====================================================
+
+% --- Executes on selection change in popupmenu1.
+function popupmenu1_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%% load p.mat
+set(handles.edit1,'String','Drawing figure ...');pause(0.1);
+guidata(hObject, handles);
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+
+%% input popupmenu1 value
+image_no= get(handles.popupmenu1,'Value');
+
+
+%% Default load first image information
+d_fol = data_folder{image_no};
+s_fol = [d_fol 'stack.mat'];
+d_fol = [d_fol 'p.mat'];
+if ispc ==1
+    d_fol(findstr(d_fol, '/'))='\';
+    s_fol(findstr(s_fol, '/'))='\';
+end
+load(d_fol);load(s_fol);
+
+
+
+%% load edit1, popupmenu3 properties
+chal_no=get(handles.popupmenu3,'Value');
+chal_string=get(handles.popupmenu3,'String');
+chal_string=chal_string{chal_no,1};
+ax=1;
+for ci=1:size(chal_info,1)    
+    if isempty(findstr(chal_string,chal_info{ci,3}))~=1;ax=ci;end
+end
+n=findstr(chal_string,'__');
+figure_name = chal_string(n+2:end);
+
+
+%% load maxcolorbar properties
+maxcolorbar_input=str2num(get(handles.edit2,'String'));
+if isempty(maxcolorbar_input)==1||maxcolorbar_input==0
+    if iinfo.BitDepth==16
+        maxcolorbar_input = 65535;
+    else
+        maxcolorbar_input = 256;
+    end
+end
+
+
+%% Show GUI axes1 and output figures in data folder
+% axes1
+
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+if strcmp(figure_name,'xyzI')==1
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, maxcolorbar_input]);colormap(jet);colorbar;title([basename{1} '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    set(h,'Enable','on');
+end
+
+% output figures
+%{
+for i=1:size(data_i,1)
+    s=data_i(i,1);
+    ax=s;
+    fh = figure;set(fh,'Units','pixels','visible','off');
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, 65535]);colormap(jet);colorbar;title([basename '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    if ispc ==1
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''\xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    else
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''/xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    end
+end
+%}
+% Finish process
+set(handles.edit1,'String','Finished!');
+guidata(hObject, handles);
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu1
+end
+
+% --- Executes on selection change in popupmenu3.
+function popupmenu3_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%% load p.mat
+set(handles.edit1,'String','Drawing figure ...');pause(0.1);
+guidata(hObject, handles);
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+
+%% input popupmenu1 value
+image_no= get(handles.popupmenu1,'Value');
+
+
+%% Default load first image information
+d_fol = data_folder{image_no};
+s_fol = [d_fol 'stack.mat'];
+d_fol = [d_fol 'p.mat'];
+if ispc ==1
+    d_fol(findstr(d_fol, '/'))='\';
+    s_fol(findstr(s_fol, '/'))='\';
+end
+load(d_fol);load(s_fol);
+
+
+
+%% load edit1, popupmenu3 properties
+chal_no=get(handles.popupmenu3,'Value');
+chal_string=get(handles.popupmenu3,'String');
+chal_string=chal_string{chal_no,1};
+ax=1;
+for ci=1:size(chal_info,1)    
+    if isempty(findstr(chal_string,chal_info{ci,3}))~=1;ax=ci;end
+end
+n=findstr(chal_string,'__');
+figure_name = chal_string(n+2:end);
+
+
+%% load maxcolorbar properties
+maxcolorbar_input=str2num(get(handles.edit2,'String'));
+if isempty(maxcolorbar_input)==1||maxcolorbar_input==0
+    if iinfo.BitDepth==16
+        maxcolorbar_input = 65535;
+    else
+        maxcolorbar_input = 256;
+    end
+end
+
+
+%% Show GUI axes1 and output figures in data folder
+% axes1
+
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+if strcmp(figure_name,'xyzI')==1
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, maxcolorbar_input]);colormap(jet);colorbar;title([basename{1} '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    set(h,'Enable','on');
+end
+
+% output figures
+%{
+for i=1:size(data_i,1)
+    s=data_i(i,1);
+    ax=s;
+    fh = figure;set(fh,'Units','pixels','visible','off');
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, 65535]);colormap(jet);colorbar;title([basename '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    if ispc ==1
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''\xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    else
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''/xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    end
+end
+%}
+% Finish process
+set(handles.edit1,'String','Finished!');
+guidata(hObject, handles);
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu3 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu3
+end
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
+maxyo=get(handles.checkbox1,'Value');
+if maxyo==1
+    set(handles.edit2,'Visible','Off');
+    set(handles.edit2,'String','0');
+    
+        %% load p.mat
+        set(handles.edit1,'String','Drawing figure ...');pause(0.1);
+        guidata(hObject, handles);
+        rootfolder = pwd;
+        savefolder = [rootfolder '/[functions]/io.mat'];
+        if ispc ==1
+            savefolder(findstr(savefolder, '/'))='\';
+        end
+        load(savefolder);
+
+
+        %% input popupmenu1 value
+        image_no= get(handles.popupmenu1,'Value');
+
+
+        %% Default load first image information
+        d_fol = data_folder{image_no};
+        s_fol = [d_fol 'stack.mat'];
+        d_fol = [d_fol 'p.mat'];
+        if ispc ==1
+            d_fol(findstr(d_fol, '/'))='\';
+            s_fol(findstr(s_fol, '/'))='\';
+        end
+        load(d_fol);load(s_fol);
+
+
+
+        %% load edit1, popupmenu3 properties
+        chal_no=get(handles.popupmenu3,'Value');
+        chal_string=get(handles.popupmenu3,'String');
+        chal_string=chal_string{chal_no,1};
+        ax=1;
+        for ci=1:size(chal_info,1)    
+            if isempty(findstr(chal_string,chal_info{ci,3}))~=1;ax=ci;end
+        end
+        n=findstr(chal_string,'__');
+        figure_name = chal_string(n+2:end);
+
+
+        %% load maxcolorbar properties
+        maxcolorbar_input=str2num(get(handles.edit2,'String'));
+        if isempty(maxcolorbar_input)==1||maxcolorbar_input==0
+            if iinfo.BitDepth==16
+                maxcolorbar_input = 65535;
+            else
+                maxcolorbar_input = 256;
+            end
+        end
+
+
+        %% Show GUI axes1 and output figures in data folder
+        % axes1
+
+        set(handles.axes1,'Units','pixels');
+        axes(handles.axes1);
+        if strcmp(figure_name,'xyzI')==1
+            eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+            caxis([0, maxcolorbar_input]);colormap(jet);colorbar;title([basename{1} '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+            set(h,'Enable','on');
+        end
+
+        % output figures
+        %{
+        for i=1:size(data_i,1)
+            s=data_i(i,1);
+            ax=s;
+            fh = figure;set(fh,'Units','pixels','visible','off');
+            eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+            caxis([0, 65535]);colormap(jet);colorbar;title([basename '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+            if ispc ==1
+                set(fh,'visible','on');
+                eval(['saveas(fh, [basename ''\xyzintsegdat{' num2str(ax) '}.fig'']);']);
+                close(fh);
+            else
+                set(fh,'visible','on');
+                eval(['saveas(fh, [basename ''/xyzintsegdat{' num2str(ax) '}.fig'']);']);
+                close(fh);
+            end
+        end
+        %}
+        % Finish process
+        set(handles.edit1,'String','Finished!');
+        guidata(hObject, handles);
+elseif maxyo==0
+    set(handles.edit1,'String','Input value ...');pause(0.1);
+    guidata(hObject, handles);
+    set(handles.edit2,'Visible','On');
+end
+end
+
+
+function edit2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%% load p.mat
+set(handles.edit1,'String','Drawing figure ...');pause(0.1);
+guidata(hObject, handles);
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+
+%% input popupmenu1 value
+image_no= get(handles.popupmenu1,'Value');
+
+
+%% Default load first image information
+d_fol = data_folder{image_no};
+s_fol = [d_fol 'stack.mat'];
+d_fol = [d_fol 'p.mat'];
+if ispc ==1
+    d_fol(findstr(d_fol, '/'))='\';
+    s_fol(findstr(s_fol, '/'))='\';
+end
+load(d_fol);load(s_fol);
+
+
+
+%% load edit1, popupmenu3 properties
+chal_no=get(handles.popupmenu3,'Value');
+chal_string=get(handles.popupmenu3,'String');
+chal_string=chal_string{chal_no,1};
+ax=1;
+for ci=1:size(chal_info,1)    
+    if isempty(findstr(chal_string,chal_info{ci,3}))~=1;ax=ci;end
+end
+n=findstr(chal_string,'__');
+figure_name = chal_string(n+2:end);
+
+
+%% load maxcolorbar properties
+maxcolorbar_input=str2num(get(handles.edit2,'String'));
+if isempty(maxcolorbar_input)==1||maxcolorbar_input==0
+    if iinfo.BitDepth==16
+        maxcolorbar_input = 65535;
+    else
+        maxcolorbar_input = 256;
+    end
+end
+
+
+%% Show GUI axes1 and output figures in data folder
+% axes1
+
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+if strcmp(figure_name,'xyzI')==1
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, maxcolorbar_input]);colormap(jet);colorbar;title([basename{1} '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    set(h,'Enable','on');
+end
+
+% output figures
+%{
+for i=1:size(data_i,1)
+    s=data_i(i,1);
+    ax=s;
+    fh = figure;set(fh,'Units','pixels','visible','off');
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, 65535]);colormap(jet);colorbar;title([basename '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    if ispc ==1
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''\xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    else
+        set(fh,'visible','on');
+        eval(['saveas(fh, [basename ''/xyzintsegdat{' num2str(ax) '}.fig'']);']);
+        close(fh);
+    end
+end
+%}
+% Finish process
+set(handles.edit1,'String','Finished!');
+guidata(hObject, handles);
+
+% Hints: get(hObject,'String') returns contents of edit2 as text
+%        str2double(get(hObject,'String')) returns contents of edit2 as a double
+end
+
+% --- Executes on button press in pushbutton25.
+function pushbutton25_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton25 (see GCBO)
+
+%% load p.mat
+set(handles.edit1,'String','Saving figure ...');pause(0.1);
+guidata(hObject, handles);
+rootfolder = pwd;
+savefolder = [rootfolder '/[functions]/io.mat'];
+if ispc ==1
+    savefolder(findstr(savefolder, '/'))='\';
+end
+load(savefolder);
+
+
+%% input popupmenu1 value
+image_no= get(handles.popupmenu1,'Value');
+
+
+%% Default load first image information
+d_fol = data_folder{image_no};
+s_fol = [d_fol 'stack.mat'];
+d_fol = [d_fol 'p.mat'];
+if ispc ==1
+    d_fol(findstr(d_fol, '/'))='\';
+    s_fol(findstr(s_fol, '/'))='\';
+end
+load(d_fol);load(s_fol);
+
+
+
+%% load edit1, popupmenu3 properties
+chal_no=get(handles.popupmenu3,'Value');
+chal_string=get(handles.popupmenu3,'String');
+chal_string=chal_string{chal_no,1};
+ax=1;
+for ci=1:size(chal_info,1)    
+    if isempty(findstr(chal_string,chal_info{ci,3}))~=1;ax=ci;end
+end
+n=findstr(chal_string,'__');
+figure_name = chal_string(n+2:end);
+
+
+%% load maxcolorbar properties
+maxcolorbar_input=str2num(get(handles.edit2,'String'));
+if isempty(maxcolorbar_input)==1||maxcolorbar_input==0
+    if iinfo.BitDepth==16
+        maxcolorbar_input = 65535;
+    else
+        maxcolorbar_input = 256;
+    end
+end
+
+
+%% Show GUI axes1 and output figures in data folder
+% axes1
+%{
+set(handles.axes1,'Units','pixels');
+axes(handles.axes1);
+if strcmp(figure_name,'xyzI')==1
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, maxcolorbar_input]);colormap(jet);colorbar;title([basename{1} '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+    set(h,'Enable','on');
+end
+%}
+% output figures
+fh = figure;set(fh,'Units','pixels','visible','off');
+set(fh,'Units','pixels','visible','off');
+if strcmp(figure_name,'xyzI')==1
+    eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
+    caxis([0, maxcolorbar_input]);colormap(jet);colorbar;title([basename{1} '  ' chal_info{ax,3}]);pause(0.1);h=rotate3d;
+
+    set(fh,'visible','on');
+    eval(['saveas(fh,''' data_folder{image_no} chal_string '.fig'');']);
+    close(fh);
+
+end
+
+
+% Finish process
+set(handles.edit1,'String','Finished!');
+guidata(hObject, handles);
+
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+end
+
+
+% ====/ other GUI functions /=====================================================
 
 % --- Executes on button press in pushbutton18.
 function pushbutton18_Callback(hObject, eventdata, handles)
@@ -362,7 +910,6 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 end
 
-
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -427,6 +974,44 @@ function pushbutton22_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 end
 
+% --- Executes during object creation, after setting all properties.
+function popupmenu1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+end
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+end
+
+% --- Executes during object creation, after setting all properties.
+function edit2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+end
 
 % ================================================================
 
@@ -607,7 +1192,7 @@ else
 end
 
 % Create channel info
-for c=1:io.totchan
+for c=1:iinfo.chalN
     eval(['chal_info{c,1} = io.chal' num2str(c) '_show;']);
     chal_info{c,2} = 0;
     eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
@@ -772,6 +1357,8 @@ save(savefolder,'imagename','basename','imageformat','savefolder','data_folder',
 
 %% convert image into multi-stack and save stack.mat and p.mat
 for i=1:size(basename,2)
+    eval(['set(handles.edit1,''String'',''Loading Images [' num2str(i) '/' num2str(size(basename,2)) '] ..'');pause(0.1);']);
+    guidata(hObject, handles);
     % convert image into multi-stack
     try
         lsm_stack = tiffread(imagename{i});
@@ -796,7 +1383,7 @@ for i=1:size(basename,2)
     end
     
     % Create channel info
-    for c=1:io.totchan
+    for c=1:iinfo.chalN
         eval(['chal_info{c,1} = io.chal' num2str(c) '_show;']);
         chal_info{c,2} = 0;
         eval(['if io.chal' num2str(c) '_no ==1;chal_info{c,2} = 1;end']);
@@ -864,7 +1451,7 @@ for i=1:size(basename,2)
         if exist([data_folder{i} 'tiff_image.tif'],'file')~=0
             delete([data_folder{i} 'tiff_image.tif']);
         end
-        for chal=1:io.totchan
+        for chal=1:iinfo.chalN
             for m=1:size(NFstk{chal},3)
                 imwrite(NFstk{chal}(:,:,m),[data_folder{i} 'tiff_image.tif'], 'writemode', 'append');
             end
@@ -919,8 +1506,8 @@ for i=1:size(imagename,2)
     end
 end
 
-set(handles.edit1,'String','RUN1 Finished!');pause(0.1);
-guidata(hObject, handles);
+%set(handles.edit1,'String','RUN1 Finished!');pause(0.1);
+%guidata(hObject, handles);
 
 end
 function step2_
@@ -1253,7 +1840,7 @@ end
 
 %% Show GUI axes1 and output figures in data folder
 % axes1
-ax = s;
+ax = data_i(1,1);
 set(handles.axes1,'Units','pixels');
 axes(handles.axes1);
 eval(['scatter3(xyzintsegdat{' num2str(ax) '}(:,1),xyzintsegdat{' num2str(ax) '}(:,2),xyzintsegdat{' num2str(ax) '}(:,3),20,xyzintsegdat{' num2str(ax) '}(:,5));']);
@@ -1261,6 +1848,7 @@ caxis([0, 65535]);colormap(jet);colorbar;title([basename '  ' chal_info{ax,3}]);
 set(h,'Enable','on');
 
 % output figures
+%{
 for i=1:size(data_i,1)
     s=data_i(i,1);
     ax=s;
@@ -1277,6 +1865,7 @@ for i=1:size(data_i,1)
         close(fh);
     end
 end
+%}
 
 % Finish process
 set(handles.edit1,'String','Finished!');
