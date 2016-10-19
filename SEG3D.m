@@ -22,7 +22,7 @@ function varargout = SEG3D(varargin)
 
 % Edit the above text to modify the response to help SEG3D
 
-% Last Modified by GUIDE v2.5 05-Oct-2016 18:56:55
+% Last Modified by GUIDE v2.5 18-Oct-2016 07:54:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,7 +55,13 @@ function SEG3D_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to SEG3D (see VARARGIN)
 
 %% Vision information
-display('  SEG3D v.beta4   made by Geoge. 2016.10.05 11:27pm  ');
+
+fprintf('\n');
+display('  ------------------------------------------------------   ');
+display('  SEG3D beta5, edited by George at 2016.10.16 0329pm ');
+display('   - add max_image slices options in raw_image GUI');
+display('  ------------------------------------------------------   ');
+fprintf('\n'); 
 
 
 % Choose default command line output for SEG3D
@@ -115,6 +121,7 @@ if imagename{1}~=0
     set(handles.pushbutton13,'enable','on');
     set(handles.pushbutton14,'enable','on');
     set(handles.pushbutton4,'enable','on');
+    set(handles.pushbutton26,'enable','on');
 end
 % Update handles
 guidata(hObject, handles);
@@ -361,6 +368,14 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 set(handles.edit1,'String','Loading Raw_image ...');pause(0.1);
 guidata(hObject, handles);
 Raw_image;
+end
+
+% --- Raw image 3D GUI
+function pushbutton26_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton26 (see GCBO)
+set(handles.edit1,'String','Loading Raw_image3D ...');pause(0.1);
+guidata(hObject, handles);
+Raw_image3D;
 end
 
 
@@ -1178,7 +1193,7 @@ catch
         lsm_stack = readlsm(imagename{1});     
     end
 end
-%lsm_stack=lsm_stack(1,1:60);    %[test_code]George
+%lsm_stack=lsm_stack(1,1:120);    %[test_code]George
 
 % image information
 iinfo.Width = lsm_stack(1).width;
@@ -1369,7 +1384,7 @@ for i=1:size(basename,2)
             lsm_stack = readlsm(imagename{i});     
         end
     end
-    %lsm_stack=lsm_stack(1,1:60);    %[test_code]George
+    %lsm_stack=lsm_stack(1,1:120);    %[test_code]George
     
     % image information
     iinfo.Width = lsm_stack(1).width;
@@ -2243,32 +2258,30 @@ maximaintclean=cat(1,maximaintclean,fragconc);  %adds the combined points into t
 currentim=uint8(zeros(iinfo.Height, iinfo.Width, size(smoothdapi8, 3)));   %creates new binary cube of all zeros
 disksize=round(max(iinfo.Height, iinfo.Width)/1024*4);                 %specifies disk size relative to pixels
    
-        for z=1:size(maximaintclean, 1)                              %takes image of 0s and makes maximas 255
-             currentim(maximaintclean(z,2),maximaintclean(z,1), maximaintclean(z,3))=150;
+    for z=1:size(maximaintclean, 1)                              %takes image of 0s and makes maximas 255
+         currentim(maximaintclean(z,2),maximaintclean(z,1), maximaintclean(z,3))=150;
 
-        end;
+    end;
 
-        %dialimage=imdilate(currentim, strel('disk',disksize));              %dilates those maximas (labelled 255) to disks of 'disksize'
-        z1=1;
-        h = fspecial3_mod('ellipsoid', [round(x1*2/3),round(y1*2/3),z1]);
+    %dialimage=imdilate(currentim, strel('disk',disksize));              %dilates those maximas (labelled 255) to disks of 'disksize'
+    z1=1;
+    h = fspecial3_mod('ellipsoid', [round(x1*2/3),round(y1*2/3),z1]);
 
-        dialimage=imfilter(currentim,h);
-        dialimage=dialimage.*64;
-        %coloroverlay=uint8(zeros(pix, pix, 3*size(smoothdapi8, 3)));
-        %colorlist=cat(3,dialimage,smoothdapi8, smoothdapi8);
-        coloroverlay=[];
-        coloroverlay=dialimage(:,:,1);
-        coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,1));
-        coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,1));
-        
-        for u=2:size(smoothdapi8, 3)
-            %overlays maxima onto original and displays
-            coloroverlay=cat(3,coloroverlay, dialimage(:,:,u));
-            coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,u));
-            coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,u));
+    dialimage=imfilter(currentim,h);
+    dialimage=dialimage.*64;
+    %coloroverlay=uint8(zeros(pix, pix, 3*size(smoothdapi8, 3)));
+    %colorlist=cat(3,dialimage,smoothdapi8, smoothdapi8);
+    coloroverlay=[];
+    coloroverlay=dialimage(:,:,1);
+    coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,1));
+    coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,1));
 
-            
-        end;
+    for u=2:size(smoothdapi8, 3)
+        %overlays maxima onto original and displays
+        coloroverlay=cat(3,coloroverlay, dialimage(:,:,u));
+        coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,u));
+        coloroverlay=cat(3, coloroverlay, smoothdapi8(:,:,u));           
+    end;
         
 if showimage==1        
         
