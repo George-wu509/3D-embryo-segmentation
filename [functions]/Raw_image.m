@@ -22,7 +22,7 @@ function varargout = Raw_image(varargin)
 
 % Edit the above text to modify the response to help Raw_image
 
-% Last Modified by GUIDE v2.5 04-Oct-2016 23:53:02
+% Last Modified by GUIDE v2.5 19-Oct-2016 13:59:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -83,6 +83,7 @@ if exist('coloroverlay','var')~=0
     handles.coloroverlay = coloroverlay;
 end
 
+
 %% setup handles.slider1,edit1, popupmenu2, axes1 property according to image1
 % setup popupmenu2
 set(handles.popupmenu2,'String',chal_info(:,3));
@@ -106,8 +107,8 @@ maxcolorbar=256;
 if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
 if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
 set(handles.axes1,'Units','pixels');
-resizePos = get(handles.axes1,'Position');
-myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
@@ -163,6 +164,18 @@ load(d_fol);load(s_fol);
 handles.NFstk = NFstk;
 
 
+% Dault colorbar max value setup
+maxyo=get(handles.checkbox2,'Value');
+if maxyo==1
+    set(handles.edit3,'Visible','Off');
+    set(handles.edit3,'String','0');
+    set(handles.checkbox2,'String','One slice:');
+elseif maxyo==0
+    set(handles.edit3,'Visible','On');
+    set(handles.checkbox2,'String','Max_image with +- slice:');
+end
+
+
 %% load edit1, popupmenu2 properties
 chal_no=get(handles.popupmenu2,'Value');
 page_no=str2num(get(handles.edit1,'String'));
@@ -172,14 +185,22 @@ page_no=str2num(get(handles.edit1,'String'));
 maxcolorbar_input=str2num(get(handles.edit2,'String'));
 
 
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+
 %% show axes1
-myImage = NFstk{1,chal_no}(:,:,page_no);
+%myImage = NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
 maxcolorbar=256;
 if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
 if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
 set(handles.axes1,'Units','pixels');
-resizePos = get(handles.axes1,'Position');
-myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
@@ -189,7 +210,12 @@ set(handles.axes1,'Units','normalized');
 if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
-    imshow(coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
     set(handles.axes2,'Units','normalized');
     axis on;
 end
@@ -204,6 +230,18 @@ function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% Dault colorbar max value setup
+maxyo=get(handles.checkbox2,'Value');
+if maxyo==1
+    set(handles.edit3,'Visible','Off');
+    set(handles.edit3,'String','0');
+    set(handles.checkbox2,'String','One slice:');
+elseif maxyo==0
+    set(handles.edit3,'Visible','On');
+    set(handles.checkbox2,'String','Max_image with +- slice:');
+end
 
 
 %% input edit value and update slider1 and popupmenu2
@@ -223,14 +261,22 @@ guidata(hObject, handles);
 maxcolorbar_input=str2num(get(handles.edit2,'String'));
 
 
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+
 %% show axes1
-myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+%myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
 maxcolorbar=256;
 if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
 if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
 set(handles.axes1,'Units','pixels');
-resizePos = get(handles.axes1,'Position');
-myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
@@ -240,7 +286,12 @@ set(handles.axes1,'Units','normalized');
 if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
-    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
     set(handles.axes2,'Units','normalized');
     axis on;
 end
@@ -257,6 +308,18 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+% Dault colorbar max value setup
+maxyo=get(handles.checkbox2,'Value');
+if maxyo==1
+    set(handles.edit3,'Visible','Off');
+    set(handles.edit3,'String','0');
+    set(handles.checkbox2,'String','One slice:');
+elseif maxyo==0
+    set(handles.edit3,'Visible','On');
+    set(handles.checkbox2,'String','Max_image with +- slice:');
+end
+
+
 %% input popupmenu2 value
 chal_no=get(handles.popupmenu2,'Value');
 
@@ -269,14 +332,22 @@ page_no=str2num(get(handles.edit1,'String'));
 maxcolorbar_input=str2num(get(handles.edit2,'String'));
 
 
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+
 %% show axes1
-myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+%myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
 maxcolorbar=256;
 if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
 if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
 set(handles.axes1,'Units','pixels');
-resizePos = get(handles.axes1,'Position');
-myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
@@ -286,7 +357,12 @@ set(handles.axes1,'Units','normalized');
 if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
-    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
     set(handles.axes2,'Units','normalized');
     axis on;
 end
@@ -303,6 +379,18 @@ function slider1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+% Dault colorbar max value setup
+maxyo=get(handles.checkbox2,'Value');
+if maxyo==1
+    set(handles.edit3,'Visible','Off');
+    set(handles.edit3,'String','0');
+    set(handles.checkbox2,'String','One slice:');
+elseif maxyo==0
+    set(handles.edit3,'Visible','On');
+    set(handles.checkbox2,'String','Max_image with +- slice:');
+end
+
+
 %% input edit1 value and update slider1
 page_no = round(get(handles.slider1,'Value'));
 set(handles.edit1,'String',num2str(page_no));
@@ -316,14 +404,22 @@ chal_no=get(handles.popupmenu2,'Value');
 maxcolorbar_input=str2num(get(handles.edit2,'String'));
 
 
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+
 %% show axes1
-myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+%myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
 maxcolorbar=256;
 if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
 if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
 set(handles.axes1,'Units','pixels');
-resizePos = get(handles.axes1,'Position');
-myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
@@ -333,7 +429,12 @@ set(handles.axes1,'Units','normalized');
 if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
-    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
     set(handles.axes2,'Units','normalized');
     axis on;
 end
@@ -347,6 +448,18 @@ end
 function edit2_Callback(hObject, eventdata, handles)
 
 
+% Dault colorbar max value setup
+maxyo=get(handles.checkbox2,'Value');
+if maxyo==1
+    set(handles.edit3,'Visible','Off');
+    set(handles.edit3,'String','0');
+    set(handles.checkbox2,'String','One slice:');
+elseif maxyo==0
+    set(handles.edit3,'Visible','On');
+    set(handles.checkbox2,'String','Max_image with +- slice:');
+end
+
+
 %% input edit1 value and update slider1
 page_no = round(get(handles.slider1,'Value'));
 set(handles.edit1,'String',num2str(page_no));
@@ -359,14 +472,22 @@ chal_no=get(handles.popupmenu2,'Value');
 maxcolorbar_input=str2num(get(handles.edit2,'String'));
 
 
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+
 %% show axes1
-myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+%myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
 maxcolorbar=256;
 if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
 if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
 set(handles.axes1,'Units','pixels');
-resizePos = get(handles.axes1,'Position');
-myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
@@ -376,7 +497,12 @@ set(handles.axes1,'Units','normalized');
 if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
-    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
     set(handles.axes2,'Units','normalized');
     axis on;
 end
@@ -416,14 +542,22 @@ chal_no=get(handles.popupmenu2,'Value');
 maxcolorbar_input=str2num(get(handles.edit2,'String'));
 
 
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+
 %% show axes1
-myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+%myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
 maxcolorbar=256;
 if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
 if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
 set(handles.axes1,'Units','pixels');
-resizePos = get(handles.axes1,'Position');
-myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
 set(handles.axes1,'Units','normalized');
@@ -433,7 +567,12 @@ set(handles.axes1,'Units','normalized');
 if isfield(handles,'coloroverlay') ==1
     set(handles.axes2,'Units','pixels');
     axes(handles.axes2);
-    imshow(handles.coloroverlay(:,:,(page_no-1)*3+1:(page_no-1)*3+3));colorbar;
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
     set(handles.axes2,'Units','normalized');
     axis on;
 end
@@ -445,6 +584,156 @@ end
 guidata(hObject, handles);
 end
 
+% --- Executes on button press in checkbox2.
+function checkbox2_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% Dault colorbar max value setup
+maxyo=get(handles.checkbox2,'Value');
+if maxyo==1
+    set(handles.edit3,'Visible','Off');
+    set(handles.edit3,'String','0');
+    set(handles.checkbox2,'String','One slice:');
+elseif maxyo==0
+    set(handles.edit3,'Visible','On');
+    set(handles.checkbox2,'String','Max_image with +- slice:');
+end
+
+
+%% input edit1 value and update edit1
+page_no=round(str2num(get(handles.edit1,'String')));
+
+
+%% load popupmenu2 properties
+chal_no=get(handles.popupmenu2,'Value');
+
+
+%% load maxcolorbar properties
+maxcolorbar_input=str2num(get(handles.edit2,'String'));
+
+
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+
+%% show axes1
+%myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
+maxcolorbar=256;
+if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
+if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
+set(handles.axes1,'Units','pixels');
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+axes(handles.axes1);
+imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
+set(handles.axes1,'Units','normalized');
+
+
+%% show axes2
+if isfield(handles,'coloroverlay') ==1
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
+    set(handles.axes2,'Units','normalized');
+    axis on;
+end
+
+
+
+
+% update handles
+guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of checkbox2
+end
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Dault colorbar max value setup
+maxyo=get(handles.checkbox2,'Value');
+if maxyo==1
+    set(handles.edit3,'Visible','Off');
+    set(handles.edit3,'String','0');
+    set(handles.checkbox2,'String','One slice:');
+elseif maxyo==0
+    set(handles.edit3,'Visible','On');
+    set(handles.checkbox2,'String','Max_image with +- slice:');
+end
+
+
+%% input edit1 value and update edit1
+page_no=round(str2num(get(handles.edit1,'String')));
+
+
+%% load popupmenu2 properties
+chal_no=get(handles.popupmenu2,'Value');
+
+
+%% load maxcolorbar properties
+maxcolorbar_input=str2num(get(handles.edit2,'String'));
+
+
+%% load max_image properties
+max_Ip=str2num(get(handles.edit3,'String'));
+if isempty(max_Ip)==1
+    max_Ip=0;
+end
+
+%% show axes1
+%myImage = handles.NFstk{1,chal_no}(:,:,page_no);
+myImage = max(handles.NFstk{1,chal_no}(:,:,max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3))),[],3);
+maxcolorbar=256;
+if max(max(max(handles.NFstk{1,1})))>500;maxcolorbar =65535;end
+if maxcolorbar_input~=0;maxcolorbar=maxcolorbar_input;end
+set(handles.axes1,'Units','pixels');
+%resizePos = get(handles.axes1,'Position');
+%myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
+axes(handles.axes1);
+imagesc(myImage);colorbar;caxis([0 maxcolorbar]);
+set(handles.axes1,'Units','normalized');
+
+
+%% show axes2
+if isfield(handles,'coloroverlay') ==1
+    set(handles.axes2,'Units','pixels');
+    axes(handles.axes2);
+    page_noall=max(page_no-max_Ip,1):min(page_no+max_Ip,size(handles.NFstk{1,1},3));
+    maxcoloroverlay(:,:,1)=max(handles.coloroverlay(:,:,(page_noall-1)*3+1),[],3);
+    maxcoloroverlay(:,:,2)=max(handles.coloroverlay(:,:,(page_noall-1)*3+2),[],3);
+    maxcoloroverlay(:,:,3)=max(handles.coloroverlay(:,:,(page_noall-1)*3+3),[],3);
+    
+    imshow(maxcoloroverlay);colorbar;
+    set(handles.axes2,'Units','normalized');
+    axis on;
+end
+
+
+
+
+% update handles
+guidata(hObject, handles);
+% Hint: get(hObject,'Value') returns toggle state of checkbox2
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+end
+
 % -------------------------------------------------------------
 
 % --- Outputs from this function are returned to the command line.
@@ -453,7 +742,9 @@ function varargout = Raw_image_OutputFcn(hObject, eventdata, handles)
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+%handles=rmfield(handles,'NFstk');
+%handles=rmfield(handles,'xyzintsegdat');
+%guidata(hObject, handles);
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 end
@@ -520,4 +811,30 @@ function edit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+end
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+end
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%handles=rmfield(handles,'NFstk');
+%handles=rmfield(handles,'xyzintsegdat');
+guidata(hObject, handles);
+% Hint: delete(hObject) closes the figure
+delete(hObject);
 end
