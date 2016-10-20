@@ -180,6 +180,11 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -190,12 +195,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -217,7 +217,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -246,7 +246,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -265,7 +265,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -279,6 +279,11 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -289,12 +294,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -316,7 +316,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -345,7 +345,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -364,7 +364,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -378,6 +378,11 @@ function edit1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -388,19 +393,13 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
-page_no = round(str2double(get(handles.edit1,'String')));
+page_no = round(get(handles.slider1,'Value'));
 set(handles.slider1,'String',num2str(page_no));
-set(handles.slider1,'Value',page_no);
-set(handles.edit1,'Value',page_no);
+set(handles.edit1,'String',num2str(page_no));
 
 
 %% setup handles.slider3 and edit4 - 3Dlayer
@@ -416,7 +415,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -445,7 +444,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -464,7 +463,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -478,6 +477,11 @@ function slider1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -488,19 +492,13 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
 page_no = round(get(handles.slider1,'Value'));
 set(handles.slider1,'String',num2str(page_no));
 set(handles.edit1,'String',num2str(page_no));
-set(handles.edit1,'Value',page_no);
 
 
 %% setup handles.slider3 and edit4 - 3Dlayer
@@ -516,7 +514,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -545,7 +543,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -564,7 +562,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -578,6 +576,11 @@ function slider3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -588,12 +591,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -615,7 +613,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -644,7 +642,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -663,7 +661,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -677,6 +675,11 @@ function edit4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -687,12 +690,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -702,10 +700,10 @@ set(handles.edit1,'String',num2str(page_no));
 
 
 %% setup handles.slider3 and edit4 - 3Dlayer
-max_Ip = round(str2double(get(handles.edit4,'String')));
+max_Ip = round(get(handles.slider3,'Value'));
 set(handles.slider3,'String',num2str(max_Ip));
-set(handles.slider3,'Value',max_Ip);
-set(handles.edit4,'Value',max_Ip);
+set(handles.edit4,'String',num2str(max_Ip));
+max_Ip=str2num(get(handles.edit4,'String'));
 if isempty(max_Ip)==1
     max_Ip=0;
 end
@@ -714,7 +712,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -743,7 +741,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -762,7 +760,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -776,6 +774,11 @@ function edit5_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -786,12 +789,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -813,7 +811,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -842,7 +840,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -861,7 +859,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -875,6 +873,11 @@ function popupmenu3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -885,12 +888,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -912,9 +910,8 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
-maxyo=1;
-set(handles.checkbox4,'Value',1);
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
+maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
     set(handles.edit9,'String','0');
@@ -942,7 +939,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -961,7 +958,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -975,6 +972,11 @@ function edit7_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -985,12 +987,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -1012,7 +1009,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -1041,7 +1038,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -1060,7 +1057,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -1074,6 +1071,11 @@ function checkbox3_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -1084,12 +1086,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -1111,7 +1108,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -1140,7 +1137,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -1159,7 +1156,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -1173,6 +1170,11 @@ function checkbox4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -1183,12 +1185,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -1210,7 +1207,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -1239,7 +1236,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -1258,7 +1255,7 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
@@ -1272,6 +1269,11 @@ function edit9_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+%% input popupmenu1% and 2 value
+image_no= get(handles.popupmenu1,'Value');
+chal_no=get(handles.popupmenu2,'Value');
+
+
 %% load p.mat
 rootfolder = pwd;
 savefolder = [rootfolder '/[functions]/io.mat'];
@@ -1282,12 +1284,7 @@ load(savefolder);
 NFstk = handles.NFstk;
 xyzintsegdat=handles.xyzintsegdat;
 chal_info=handles.chal_info;
-maxpage=size(NFstk{1},3);
-
-
-%% input popupmenu1% and 2 value
-image_no= get(handles.popupmenu1,'Value');
-chal_no=get(handles.popupmenu2,'Value');
+maxpage=size(NFstk{1,chal_no},3);
 
 
 %% setup handles.slider1 and edit1 - Z-stack
@@ -1309,7 +1306,7 @@ end
 %% Marker properties
 % Dault colorbar max value setup
 maxcolorbar=256;
-if max(max(max(NFstk{1,1})))>500;maxcolorbar =65535;end
+if max(max(max(NFstk{1,chal_no})))>500;maxcolorbar =65535;end
 maxyo=get(handles.checkbox4,'Value');
 if maxyo==1
     set(handles.edit9,'Visible','Off');
@@ -1338,7 +1335,7 @@ xyzi=xyzi(xyzi(:,3)>=max(page_no-max_Ip,1)&xyzi(:,3)<=min(page_no+max_Ip,maxpage
 [handles.az,handles.el] = view;
 set(handles.axes1,'Units','pixels');
 resizePos = get(handles.axes1,'Position');
-myImage = NFstk{1}(:,:,page_no);
+myImage = NFstk{1,chal_no}(:,:,page_no);
 %myImage= imresize(myImage, [resizePos(3) resizePos(3)]);
 axes(handles.axes1);
 if maxyo==1
@@ -1357,10 +1354,12 @@ if flag_on==1
         line([xyzi(i,1) xyzi(i,1)],[xyzi(i,2) xyzi(i,2)],[xyzi(i,3) xyzi(i,3)+mk_size],'Color',mk_color);hold on
     end
 end
-surface(ones(size(NFstk{1},1),size(NFstk{1},2)).*page_no,NFstk{1}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
+surface(ones(size(NFstk{1,chal_no},1),size(NFstk{1,chal_no},2)).*page_no,NFstk{1,chal_no}(:,:,page_no),'Edgecolor','none');alpha(im_alpha);hold off;
 xlim([1, size(myImage,1)]);ylim([1, size(myImage,2)]);zlim([1, maxpage]);
 
 % update handles
+handles=rmfield(handles,'NFstk');
+handles=rmfield(handles,'xyzintsegdat');
 guidata(hObject, handles);
 end
 
@@ -1369,8 +1368,8 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles=rmfield(handles,'NFstk');
-handles=rmfield(handles,'xyzintsegdat');
+%handles=rmfield(handles,'NFstk');
+%handles=rmfield(handles,'xyzintsegdat');
 guidata(hObject, handles);
 % Hint: delete(hObject) closes the figure
 delete(hObject);

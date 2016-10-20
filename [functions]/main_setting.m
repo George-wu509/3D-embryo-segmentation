@@ -240,6 +240,7 @@ if now_image ==0
     io.chal4_name=get(handles.edit7,'String');
     io.savetiff=get(handles.checkbox1,'Value');
     io.dataorder=get(handles.popupmenu1,'Value');
+    io.p_set=1;
     
     % find p.mat in [function] folder
     rootfolder = pwd;
@@ -276,6 +277,7 @@ if now_image ==0
             p.io.chal4_name=get(handles.edit7,'String');
             p.io.savetiff=get(handles.checkbox1,'Value');
             p.io.dataorder=get(handles.popupmenu1,'Value');
+            p.io.p_set=1;
 
             for c=1:p.io.totchan
                 eval(['chal_info{c,1} = p.io.chal' num2str(c) '_show;']);
@@ -319,6 +321,7 @@ else
     p.io.chal4_name=get(handles.edit7,'String');
     p.io.savetiff=get(handles.checkbox1,'Value');
     p.io.dataorder=get(handles.popupmenu1,'Value');
+    p.io.p_set=1;
     
     for c=1:p.io.totchan
         eval(['chal_info{c,1} = p.io.chal' num2str(c) '_show;']);
