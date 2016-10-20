@@ -58,8 +58,9 @@ function SEG3D_OpeningFcn(hObject, eventdata, handles, varargin)
 
 fprintf('\n');
 display('  ------------------------------------------------------   ');
-display('  SEG3D beta5, edited by George at 2016.10.16 0329pm ');
-display('   - add max_image slices options in raw_image GUI');
+display('  SEG3D beta6, edited by George at 2016.10.20 0300am ');
+display('   - finish the Raw_image3D GUI');
+display('   - Developing 3 new segmentation functions: wavelet, DA algorithm and RNA segmentation method');
 display('  ------------------------------------------------------   ');
 fprintf('\n'); 
 
@@ -1064,6 +1065,7 @@ function [p,io]=p_setting()
 % Main parameter, IO
 %io.segindex = 2;      % 2 segindex= the channel to be used to ID maxima
 %io.intindex = 1;      % 1 intindex= the experimental channel to be measured
+io.p_set = 0;
 io.savetiff = 1;      % save all tif files to folder
 io.totchan = 2;       % 2
 io.dataorder = 1;     % =1: chal1(1,4,7,10), =2: chal1(1,2,3,4)
@@ -1199,7 +1201,11 @@ end
 iinfo.Width = lsm_stack(1).width;
 iinfo.Height = lsm_stack(1).height;
 iinfo.BitDepth = lsm_stack(1).bits;
-iinfo.chalN = size(imread(imagename{1}),3);
+if io.p_set==1
+    iinfo.chalN = io.totchan;
+else
+    iinfo.chalN = size(imread(imagename{1}),3);
+end
 if iscell(lsm_stack(1).data)==1
     iinfo.pageN = size(lsm_stack,2);
 else
